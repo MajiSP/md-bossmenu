@@ -37,18 +37,22 @@
             <th class="text-center p-2 min-w-[80px]">Actions</th>
           </tr>
         </thead>
-        <tbody class="min-h-[350px]">
-          <tr v-for="employee in filteredEmployees" :key="employee.id" class="border-t border-gray-700">
-            <td class="p-2">{{ employee.grade }}</td>
-            <td class="p-2">{{ employee.name }}</td>
-            <td class="p-2">${{ employee.salary }}</td>
-            <td class="p-2 text-center">
-              <button @click="confirmFire(employee)" class="text-red-500">
-                <font-awesome-icon icon="trash" />
-              </button>
-            </td>
-          </tr>
-        </tbody>
+          <tbody class="min-h-[350px]">
+            <tr v-for="employee in filteredEmployees" :key="employee.id" class="border-t border-gray-700">
+              <td class="p-2">
+                <select v-model="employee.grade" class="bg-gray-700 rounded p-1 appearance-none focus:outline-none select-none focus:ring-0 focus:border-gray-700">
+                  <option v-for="grade in sortedGrades" :key="grade.level" :value="grade.name">{{ grade.name }}</option>
+                </select>
+              </td>
+              <td class="p-2">{{ employee.name }}</td>
+              <td class="p-2">${{ salaries[employee.grade] ? salaries[employee.grade].toLocaleString() : 'N/A' }}</td>
+              <td class="p-2 text-center">
+                <button @click="confirmFire(employee)" class="text-red-500">
+                  <font-awesome-icon icon="trash" />
+                </button>
+              </td>
+            </tr>
+          </tbody>
       </table>
     </div>
     <div v-if="showConfirmation" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -67,6 +71,8 @@
 import { ref, inject, computed } from 'vue'
 
 const employees = inject('employees')
+const grades = inject('grades')
+const salaries = inject('salaries')
 const currentTheme = inject('theme')
 
 const searchQuery = ref('')
@@ -74,6 +80,10 @@ const sortKey = ref('grade')
 const sortOrder = ref('asc')
 const showConfirmation = ref(false)
 const employeeToFire = ref(null)
+
+const sortedGrades = computed(() => {
+  return [...grades.value].sort((a, b) => a.level - b.level)
+})
 
 const filteredEmployees = computed(() => {
   return employees.value

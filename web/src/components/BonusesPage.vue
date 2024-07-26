@@ -13,7 +13,7 @@
       <tbody>
         <tr v-for="employee in employees" :key="employee.id" class="border-t border-gray-700">
           <td class="p-2">{{ employee.name }}</td>
-          <td class="p-2">${{ employee.salary }}</td>
+          <td class="p-2">${{ salaries[employee.grade] ? salaries[employee.grade].toLocaleString() : 'N/A' }}</td>
           <td class="p-2">
             <input 
               v-model="employee.bonusAmount" 
@@ -29,7 +29,6 @@
         </tr>
       </tbody>
     </table>
-
     <div v-if="showConfirmation" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
       <div :class="['p-6 rounded', currentTheme === 'light-theme' ? 'bg-white text-gray-800' : 'bg-gray-800 text-white']">
         <p>Are you sure you want to pay a bonus of ${{ selectedEmployee?.bonusAmount }} to {{ selectedEmployee?.name }}?</p>
@@ -46,6 +45,7 @@
 import { ref, inject } from 'vue'
 
 const employees = inject('employees')
+const salaries = inject('salaries')
 const currentTheme = inject('theme')
 
 const showConfirmation = ref(false)

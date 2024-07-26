@@ -28,10 +28,12 @@ local function CloseUI()
 end
 
 RegisterNetEvent('bossmenu:client:RefreshEmployees')
-AddEventHandler('bossmenu:client:RefreshEmployees', function(employees)
+AddEventHandler('bossmenu:client:RefreshEmployees', function(employees, grades, salaries)
     SendNUIMessage({
         action = "refreshEmployees",
-        employees = employees
+        employees = employees,
+        grades = grades,
+        salaries = salaries
     })
 end)
 

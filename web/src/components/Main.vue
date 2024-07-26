@@ -43,7 +43,7 @@ const isExpanded = ref(false)
 const activePage = ref('Employees')
 const theme = ref('dark-theme')
 
-const isUIOpen = ref(true)
+const isUIOpen = ref(false)
 
 const menuItems = [
   { icon: 'users', name: 'Employees' },
@@ -53,8 +53,12 @@ const menuItems = [
 ]
 
 const employees = ref([])
+const grades = ref([])
+const salaries = ref({})
 
 provide('employees', employees)
+provide('grades', grades)
+provide('salaries', salaries)
 provide('theme', theme)
 
 const toggleSidebar = () => {
@@ -88,6 +92,8 @@ window.addEventListener('message', (event) => {
     isUIOpen.value = false
   } else if (event.data.action === 'refreshEmployees') {
     employees.value = event.data.employees
+    grades.value = event.data.grades
+    salaries.value = event.data.salaries
   }
 })
 </script>
