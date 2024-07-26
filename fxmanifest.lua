@@ -6,11 +6,11 @@ description " "
 version "1.0"
 
 client_scripts {
-    "client/main.lua"
+    "client/**.lua"
 }
 
 server_scripts {
-    "server/main.lua"
+    "server/**.lua"
 }
 
 shared_scripts {
