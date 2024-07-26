@@ -39,6 +39,10 @@ AddEventHandler('bossmenu:client:RefreshEmployees', function(employees, grades, 
     })
 end)
 
+RegisterNetEvent('qb-bossmenu:client:OpenMenu', function() -- backwards compatible event 
+    OpenUI()
+end)
+
 RegisterNUICallback('closeUI', function(data, cb)
     CloseUI()
     cb('ok')
