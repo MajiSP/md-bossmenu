@@ -14,7 +14,8 @@ server_scripts {
 }
 
 shared_scripts {
-    "config.lua"
+    "config.lua",
+    '@ox_lib/init.lua'
 }
 
 files {
@@ -25,3 +26,5 @@ files {
 }
 
 ui_page "html/index.html"
+
+lua54 'yes'
