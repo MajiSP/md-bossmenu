@@ -5,6 +5,7 @@ local function OpenUI()
     local Player = QBCore.Functions.GetPlayerData()
     if Player.job.isboss then
         if not isUIOpen then
+            TriggerEvent('animations:client:EmoteCommandStart', {'tablet'}) 
             isUIOpen = true
             SetNuiFocus(true, true)
             TriggerServerEvent('bossmenu:server:GetEmployees')
@@ -19,6 +20,7 @@ end
 
 local function CloseUI()
     if isUIOpen then
+        TriggerEvent('animations:client:EmoteCommandStart', {'c'}) 
         isUIOpen = false
         SetNuiFocus(false, false)
         SendNUIMessage({
