@@ -1,0 +1,265 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
+}
+
+select::-ms-expand {
+  display: none;
+}
+
+.main-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+  border-radius: 0rem 1rem 1rem 0rem;
+  overflow: hidden;
+  background-color: transparent;
+}
+
+.main-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.boss-menu-container {
+  @apply flex items-center justify-center h-screen bg-transparent;
+}
+
+.light-theme.boss-menu-container,
+.dark-theme.boss-menu-container {
+  background-color: transparent;
+}
+
+.boss-menu-content {
+  @apply w-[1152px] h-[648px] bg-opacity-0 backdrop-blur-sm rounded-lg overflow-visible flex;
+  border-radius: 0.5rem;
+}
+
+.light-theme .boss-menu-content,
+.dark-theme .boss-menu-content {
+  background-color: transparent;
+}
+
+.sidebar {
+  @apply w-16 transition-all duration-300 ease-in-out;
+  animation: slideIn 0.5s ease-out;
+  border-radius: 0.5rem 0rem 0rem 0.5rem;
+  overflow: hidden;
+  background-color: transparent;
+}
+
+.sidebar.expanded {
+  @apply w-64;
+}
+
+.sidebar-item {
+  @apply p-5 cursor-pointer transition-colors duration-200 flex justify-start items-center;
+}
+
+.sidebar-item.active {
+  @apply bg-blue-500 text-white;
+}
+
+.light-theme .sidebar-item.active {
+  @apply bg-blue-600 text-white;
+}
+
+.light-theme .sidebar-item.active svg {
+  @apply text-white;
+}
+
+.light-theme .text-red-500 {
+  @apply text-red-600 bg-transparent hover:bg-transparent;
+}
+
+.dark-theme .sidebar-item.active {
+  @apply bg-blue-700 text-white;
+}
+
+.sidebar-item svg {
+  @apply w-6 h-6 mr-4 transition-transform duration-200;
+}
+
+.sidebar-item:hover svg {
+  @apply transform scale-110;
+}
+
+.sidebar-item span {
+  @apply opacity-0 transition-opacity duration-200;
+}
+
+.expanded .sidebar-item span {
+  @apply opacity-100;
+}
+
+.expand-btn {
+  @apply p-4 cursor-pointer transition-colors duration-200 w-full flex justify-center;
+}
+
+.expand-btn svg {
+  @apply w-6 h-6 transition-transform duration-200;
+}
+
+.expand-btn:hover svg {
+  @apply transform rotate-180;
+}
+
+.main-content {
+  @apply flex-1 py-10 overflow-y-auto;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.main-content h1 {
+  @apply text-3xl font-bold mb-8 text-center;
+}
+
+input[type="range"] {
+  @apply appearance-none w-full h-2 rounded-full outline-none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  @apply appearance-none w-4 h-4 rounded-full cursor-pointer;
+}
+
+/* Light theme styles */
+
+.light-theme .main-content {
+  scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.1);
+}
+
+.light-theme .main-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.light-theme .main-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.light-theme {
+  @apply bg-white text-gray-800;
+}
+
+.light-theme .sidebar {
+  @apply bg-gray-200;
+}
+
+.light-theme .sidebar-item:hover {
+  @apply bg-gray-300;
+}
+
+.light-theme .sidebar-item svg {
+  @apply text-gray-600;
+}
+
+.light-theme .sidebar-item:hover svg {
+  @apply text-blue-500;
+}
+
+.light-theme .main-content {
+  @apply bg-gray-100;
+}
+
+.light-theme input[type="text"],
+.light-theme input[type="number"],
+.light-theme select,
+.light-theme .search-input {
+  @apply bg-white border border-gray-300 text-gray-700;
+}
+
+.light-theme button {
+  @apply bg-blue-400 text-white hover:bg-blue-600;
+}
+
+.light-theme .setting-button {
+  @apply bg-gray-200 text-gray-700;
+}
+
+.light-theme .setting-button.active {
+  @apply bg-blue-500 text-white;
+}
+
+.light-theme input[type="range"] {
+  @apply bg-gray-300;
+}
+
+.light-theme input[type="range"]::-webkit-slider-thumb {
+  @apply bg-blue-500;
+}
+
+/* Dark theme styles */
+.dark-theme {
+  @apply bg-gray-900 text-white;
+}
+
+.dark-theme input[type="range"] {
+  @apply bg-gray-700;
+}
+
+.dark-theme input[type="range"]::-webkit-slider-thumb {
+  @apply bg-blue-400;
+}
+
+.dark-theme .sidebar {
+  @apply bg-gray-800;
+}
+
+.dark-theme .sidebar-item:hover {
+  @apply bg-gray-700;
+}
+
+.dark-theme .sidebar-item svg {
+  @apply text-white;
+}
+
+.dark-theme .sidebar-item:hover svg {
+  @apply text-blue-400;
+}
+
+.dark-theme .main-content {
+  @apply bg-gray-900;
+}
+
+.dark-theme .setting-button {
+  @apply bg-gray-200 text-gray-700;
+}
+
+.dark-theme .setting-button.active {
+  @apply bg-blue-600 text-white;
+}
+
+@keyframes transferAnimation {
+  0% { left: 1rem; }
+  100% { left: calc(100% - 3rem); }
+}
+
+.currency-icon {
+  animation: transferAnimation 2s ease-in-out forwards;
+}
+
