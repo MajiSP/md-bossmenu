@@ -14,7 +14,7 @@ local function OpenUI()
             })
         end
     else
-        QBCore.Functions.Notify("You are not authorized to access the boss menu.", "error")
+        Notify("You are not authorized to access the boss menu.", "error")
     end
 end
 
