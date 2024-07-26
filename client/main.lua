@@ -1,6 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local isUIOpen = false
 
+
 local function OpenUI()
     local Player = QBCore.Functions.GetPlayerData()
     if Player.job.isboss then
@@ -45,6 +46,13 @@ end)
 
 RegisterNUICallback('closeUI', function(data, cb)
     CloseUI()
+    cb('ok')
+end)
+
+
+RegisterNUICallback('fireEmployee', function(data, cb)
+    local check, name =  lib.callback.await('md-bossmenu:server:fire', false, data.employeeId)
+    if check ~= true then CloseUI() return end
     cb('ok')
 end)
 
