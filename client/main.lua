@@ -98,3 +98,11 @@ RegisterNUICallback('payBonus', function(data, cb)
         Notify('You Have Recieved A Bonus of $' .. val .. ' From ' .. biz .. '!', 'success')
     end
 end)
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate')
+AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
+    local Player = QBCore.Functions.GetPlayerData()
+    if JobInfo.onduty ~= Player.job.onduty then
+        TriggerServerEvent('md-bossmenu:server:UpdateDutyStatus', JobInfo.onduty)
+    end
+end)

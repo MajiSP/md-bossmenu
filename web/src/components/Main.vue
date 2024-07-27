@@ -43,8 +43,8 @@ import HomePage from './HomePage.vue'
 
 const isExpanded = ref(false)
 const theme = ref('dark-theme')
-const isUIOpen = ref(false)
-const isBoss = ref(false)
+const isUIOpen = ref(true)
+const isBoss = ref(true)
 
 const activePage = shallowRef('Home')
 

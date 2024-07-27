@@ -33,6 +33,25 @@ AddEventHandler('bossmenu:server:GetEmployees', function()
     end
 end)
 
+RegisterNetEvent('md-bossmenu:server:UpdateDutyStatus')
+AddEventHandler('md-bossmenu:server:UpdateDutyStatus', function(isOnDuty)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player then
+        Player.PlayerData.job.onduty = isOnDuty
+        Player.PlayerData.job.lastDutyChange = os.time()
+        if not Player.PlayerData.job.dutyHistory then
+            Player.PlayerData.job.dutyHistory = {}
+        end
+        table.insert(Player.PlayerData.job.dutyHistory, {
+            action = isOnDuty and "Clocked In" or "Clocked Out",
+            timestamp = os.time()
+        })
+        Player.Functions.SetPlayerData('job', Player.PlayerData.job)
+    end
+end)
+
+
 lib.callback.register('md-bossmenu:server:fire', function(source, data)
     local src = source
 	local Player = QBCore.Functions.GetPlayer(src)

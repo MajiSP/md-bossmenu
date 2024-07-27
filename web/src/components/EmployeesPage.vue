@@ -34,11 +34,14 @@
                 </span>
               </div>
             </th>
+            <th class="text-left p-2 min-w-[100px]">On Duty</th>
+            <th class="text-left p-2 min-w-[100px]">Duty Time</th>
             <th class="text-center p-2 min-w-[80px]">Actions</th>
           </tr>
         </thead>
-          <tbody class="min-h-[350px]">
-            <tr v-for="employee in filteredEmployees" :key="employee.id" class="border-t border-gray-700">
+        <tbody class="min-h-[350px]">
+          <template v-for="employee in filteredEmployees" :key="employee.id">
+            <tr @click="toggleEmployeeDetails(employee)" class="border-t border-gray-700 cursor-pointer">
               <td class="p-2">
                 <select v-model="employee.grade" class="bg-gray-700 rounded p-1 appearance-none focus:outline-none select-none focus:ring-0 focus:border-gray-700">
                   <option v-for="grade in sortedGrades" :key="grade.level" :value="grade.name">{{ grade.name }}</option>
@@ -46,13 +49,35 @@
               </td>
               <td class="p-2">{{ employee.name }}</td>
               <td class="p-2">${{ salaries[employee.grade] ? salaries[employee.grade].toLocaleString() : 'N/A' }}</td>
+              <td class="p-2">
+                <font-awesome-icon v-if="employee.onDuty" icon="check-circle" class="text-green-500" />
+                <font-awesome-icon v-else icon="times-circle" class="text-red-500" />
+              </td>
+              <td class="p-2">{{ formatDutyTime(employee.dutyTime) }}</td>
               <td class="p-2 text-center">
                 <button @click="confirmFire(employee)" class="text-red-500">
                   <font-awesome-icon icon="trash" />
                 </button>
               </td>
             </tr>
-          </tbody>
+            <tr v-if="employee.showDetails" class="border-t border-gray-700">
+              <td colspan="6" class="p-4">
+                <div ref="historyRef" :style="{ maxHeight: employee.showDetails ? historyHeight + 'px' : '0' }" class="overflow-hidden transition-all duration-300">
+                  <div>
+                    <h4 class="font-bold mb-3">Duty History</h4>
+                    <ul class="space-y-2">
+                      <li v-for="(entry, index) in employee.dutyHistory" :key="index" class="flex items-center">
+                        <span :class="['w-4 h-4 rounded-full mr-3', entry.action === 'Clocked In' ? 'bg-green-500' : 'bg-red-500']"></span>
+                        <span class="font-medium mr-2">{{ entry.action }}:</span>
+                        <span class="text-gray-400">{{ formatHistoryEntry(entry) }}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </template>
+        </tbody>
       </table>
     </div>
     <div v-if="showConfirmation" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
@@ -68,18 +93,22 @@
 </template>
 
 <script setup>
-import { ref, inject, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
+import { formatDistanceToNow } from 'date-fns'
 
-const employees = inject('employees')
-const grades = inject('grades')
-const salaries = inject('salaries')
-const currentTheme = inject('theme')
+const currentTheme = ref('dark-theme')
+
+const employees = ref([])
+const grades = ref([])
+const salaries = ref({})
 
 const searchQuery = ref('')
 const sortKey = ref('grade')
 const sortOrder = ref('asc')
 const showConfirmation = ref(false)
 const employeeToFire = ref(null)
+const historyRef = ref(null)
+const historyHeight = ref(0)
 
 const sortedGrades = computed(() => {
   return [...grades.value].sort((a, b) => a.level - b.level)
@@ -105,23 +134,30 @@ const sort = (key) => {
   }
 }
 
+const toggleEmployeeDetails = async (employee) => {
+  employee.showDetails = !employee.showDetails
+  await nextTick()
+  if (employee.showDetails) {
+    historyHeight.value = historyRef.value.scrollHeight
+  } else {
+    historyHeight.value = 0
+  }
+}
+
+const formatDutyTime = (dutyTime) => {
+  return formatDistanceToNow(new Date(dutyTime), { addSuffix: true })
+}
+
+const formatHistoryEntry = (entry) => {
+  return `${entry.action} at ${new Date(entry.timestamp).toLocaleString()}`
+}
+
 const confirmFire = (employee) => {
   employeeToFire.value = employee
   showConfirmation.value = true
 }
 
 const fireEmployee = () => {
-  fetch(`https://${GetParentResourceName()}/fireEmployee`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: JSON.stringify({
-      employeeId: employeeToFire.value.id
-    }),
-  }).then(() => {
-    employees.value = employees.value.filter(emp => emp.id !== employeeToFire.value.id)
-    showConfirmation.value = false
-  })
+  showConfirmation.value = false
 }
 </script>

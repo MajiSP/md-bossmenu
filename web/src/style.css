@@ -23,6 +23,34 @@ select::-ms-expand {
   display: none;
 }
 
+.employees-container tbody tr {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+.employees-container tbody tr:hover {
+  @apply bg-opacity-10 bg-blue-500;
+}
+
+.light-theme .employees-container tbody tr:hover {
+  @apply bg-gray-200;
+}
+
+.dark-theme .employees-container tbody tr:hover {
+  @apply bg-gray-700;
+}
+
+.employees-container .duty-history {
+  @apply mt-2 text-sm;
+}
+
+.light-theme .employees-container .duty-history {
+  @apply text-gray-600;
+}
+
+.dark-theme .employees-container .duty-history {
+  @apply text-gray-300;
+}
+
 .home-page {
   @apply flex-1 py-10 overflow-y-auto overflow-x-auto;
   animation: fadeIn 0.5s ease-out;
@@ -61,17 +89,16 @@ select::-ms-expand {
   @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 w-full;
 }
 
-.expand-enter-active,
-.expand-leave-active {
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  max-height: 300px;
+.duty-history {
+  max-height: 0;
   overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.5s ease-out, opacity 0.5s ease-out;
 }
 
-.expand-enter-from,
-.expand-leave-to {
-  max-height: 0;
-  opacity: 0;
+.duty-history.expanded {
+  max-height: 500px;
+  opacity: 1;
 }
 
 .light-theme .home-page {
