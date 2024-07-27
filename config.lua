@@ -11,5 +11,4 @@ Config.MenuItems = {
 
 Config.Locations = {
     {loc = vector3(93.02, -1291.14, 29.33), job = 'police'}
-
 }
