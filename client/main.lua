@@ -145,6 +145,14 @@ RegisterNUICallback('payBonus', function(data, cb)
     end
 end)
 
+RegisterNetEvent('updateStashLogs')
+AddEventHandler('updateStashLogs', function(logs)
+    SendNUIMessage({
+        action = "updateStashLogs",
+        logs = logs
+    })
+end)
+
 RegisterNetEvent('QBCore:Client:OnJobUpdate')
 AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
     local Player = QBCore.Functions.GetPlayerData()

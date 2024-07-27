@@ -137,6 +137,31 @@ select::-ms-expand {
   @apply bg-blue-600 text-white hover:bg-blue-700;
 }
 
+.stashes-container {
+  @apply flex flex-col space-y-4 rounded-lg;
+}
+
+.stash-button {
+  @apply px-4 py-2 rounded-lg transition-colors duration-200;
+}
+
+.light-theme .stash-button {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.dark-theme .stash-button {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.light-theme .stashes-container {
+  @apply bg-white text-gray-800;
+}
+
+.dark-theme .stashes-container {
+  @apply bg-gray-800 text-white;
+}
+
+
 .duty-history {
   max-height: 0;
   overflow: hidden;

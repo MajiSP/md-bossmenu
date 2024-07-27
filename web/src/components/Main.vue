@@ -26,6 +26,7 @@
           <StatisticsPage v-if="activePage === 'Statistics' && isBoss" />
           <EmployeesPage v-if="activePage === 'Employees' && isBoss" class="h-full" />
           <BonusesPage v-if="activePage === 'Bonuses' && isBoss" />
+          <StashesPage v-if="activePage === 'Stashes'" :isBoss="isBoss" />
           <SettingsPage v-if="activePage === 'Settings'" @theme-changed="updateTheme" />
         </div>
       </div>
@@ -40,11 +41,12 @@ import EmployeesPage from './EmployeesPage.vue'
 import BonusesPage from './BonusesPage.vue'
 import SettingsPage from './SettingsPage.vue'
 import HomePage from './HomePage.vue'
+import StashesPage from './StashesPage.vue'
 
 const isExpanded = ref(false)
 const theme = ref('dark-theme')
-const isUIOpen = ref(false)
-const isBoss = ref(false)
+const isUIOpen = ref(true)
+const isBoss = ref(true)
 
 const activePage = shallowRef('Home')
 
@@ -55,6 +57,7 @@ const menuItems = [
   { icon: 'users', name: 'Employees', bossOnly: true },
   { icon: 'chart-bar', name: 'Statistics', bossOnly: true },
   { icon: 'gift', name: 'Bonuses', bossOnly: true },
+  { icon: 'box', name: 'Stashes', bossOnly: false },
   { icon: 'cog', name: 'Settings', bossOnly: false }
 ]
 
