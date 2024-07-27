@@ -45,8 +45,8 @@ import StashesPage from './StashesPage.vue'
 
 const isExpanded = ref(false)
 const theme = ref('dark-theme')
-const isUIOpen = ref(true)
-const isBoss = ref(true)
+const isUIOpen = ref(false)
+const isBoss = ref(false)
 
 const activePage = shallowRef('Home')
 
