@@ -89,6 +89,54 @@ select::-ms-expand {
   @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 w-full;
 }
 
+.hire-modal {
+  @apply bg-opacity-95 backdrop-blur-sm rounded-lg shadow-lg;
+}
+
+.light-theme .hire-modal {
+  @apply bg-white text-gray-800;
+}
+
+.dark-theme .hire-modal {
+  @apply bg-gray-800 text-white;
+}
+
+.hire-modal input {
+  @apply w-full p-2 rounded;
+}
+
+.light-theme .hire-modal input {
+  @apply bg-white border border-gray-300 text-gray-700;
+}
+
+.dark-theme .hire-modal input {
+  @apply bg-gray-700 border border-gray-600 text-white;
+}
+
+.hire-modal ul {
+  @apply max-h-60 overflow-y-auto;
+}
+
+.light-theme .hire-modal ul li:hover {
+  @apply bg-gray-200;
+}
+
+.dark-theme .hire-modal ul li:hover {
+  @apply bg-gray-700;
+}
+
+.hire-modal button {
+  @apply px-4 py-2 rounded transition-colors duration-200;
+}
+
+.light-theme .hire-modal button {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
+
+.dark-theme .hire-modal button {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
 .duty-history {
   max-height: 0;
   overflow: hidden;

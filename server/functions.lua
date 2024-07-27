@@ -21,7 +21,7 @@ else
 end
 end)
 
-function Log(message, type)
+function Log(message, logType)
 if logs == false then return end	
     local buffer = {
         level = "info",

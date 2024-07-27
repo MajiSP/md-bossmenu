@@ -16,10 +16,19 @@ CreateThread(function()
         }
         if GetResourceState('qb-target') == 'started' then
             exports['qb-target']:AddBoxZone('mdbossmenus'..k, v.loc, 1.5, 1.75, {name = 'mdbossmenus'..k,minZ = v.loc.z-2,maxZ = v.loc.z+2,}, {options = options, distance = 2.0})
-            print('QB-TARGET')
         elseif GetResourceState('ox_target') == 'started' then
             bossmenu = exports.ox_target:addBoxZone({ coords = v.loc, size = vec(1,1,2), rotation = 0, debug = false, options = options})
         end
+    end
+end)
+
+RegisterNetEvent('md-bossmenu:client:Result', function(type, biz, val)
+    if type == 'fired' then
+        Notify('You Have Been Fired From ' .. biz .. '!', 'error')
+    elseif type == 'paid' then 
+        Notify('You Have Recieved A Bonus of $' .. val .. ' From ' .. biz .. '!', 'success')
+    elseif type == 'hired' then
+        Notify('You Have Been Hired At ' .. biz .. '!', 'success')
     end
 end)
 
@@ -49,6 +58,19 @@ local function CloseUI()
     end
 end
 
+-- event is only used for hiring.
+RegisterNetEvent('bossmenu:client:RefreshUI')
+AddEventHandler('bossmenu:client:RefreshUI', function()
+    CloseUI()
+    Wait(100)
+    OpenUI()
+    Wait(100)
+    SendNUIMessage({
+        action = "setActivePage",
+        page = "Employees"
+    })
+end)
+
 RegisterNetEvent('bossmenu:client:RefreshEmployees')
 AddEventHandler('bossmenu:client:RefreshEmployees', function(employees, grades, salaries)
     SendNUIMessage({
@@ -68,6 +90,31 @@ RegisterNUICallback('closeUI', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('getPlayers', function(data, cb)
+    TriggerServerEvent('getPlayers')
+    cb('ok')
+end)
+
+RegisterNetEvent('returnPlayers')
+AddEventHandler('returnPlayers', function(players)
+    SendNUIMessage({
+        action = "setPlayers",
+        players = players
+    })
+end)
+
+RegisterNUICallback('hireEmployee', function(data, cb)
+    TriggerServerEvent('hireEmployee', data)
+    cb('ok')
+end)
+
+RegisterNetEvent('hireEmployeeResult')
+AddEventHandler('hireEmployeeResult', function(result)
+    SendNUIMessage({
+        action = "hireResult",
+        result = result
+    })
+end)
 
 RegisterNUICallback('fireEmployee', function(data, cb)
     local check, name =  lib.callback.await('md-bossmenu:server:fire', false, data.employeeId)
@@ -91,7 +138,6 @@ RegisterNUICallback('payBonus', function(data, cb)
  end)
 
  RegisterNetEvent('md-bossmenu:client:Result', function(type, biz, val)
-    print(type, biz, val)
     if type == 'fired' then
         Notify('You Have Been Fired From ' .. biz .. '!', 'error')
     elseif type == 'paid' then 

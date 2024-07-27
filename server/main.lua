@@ -4,12 +4,12 @@ RegisterNetEvent('bossmenu:server:GetEmployees')
 AddEventHandler('bossmenu:server:GetEmployees', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    local Name = Player.PlayerData.charinfo
-    local employees = {}
-    local grades = {}
-    local salaries = {}
-    
-    if Player.PlayerData.job.isboss then
+    if Player and Player.PlayerData.job.isboss then
+        local Name = Player.PlayerData.charinfo
+        local employees = {}
+        local grades = {}
+        local salaries = {}
+        
         local players = QBCore.Functions.GetQBPlayers()
         for _, v in pairs(players) do
             if v.PlayerData.job.name == Player.PlayerData.job.name then
@@ -33,6 +33,28 @@ AddEventHandler('bossmenu:server:GetEmployees', function()
         end
         Log('ID:' .. src .. ' Name: ' .. Name.firstname .. ' ' .. Name.lastname .. ' Opened The Boss Menu for ' .. Player.PlayerData.job.name, 'openmenu')
         TriggerClientEvent('bossmenu:client:RefreshEmployees', src, employees, grades, salaries)
+    else
+        print("Error: Player not found or not a boss")
+    end
+end)
+
+RegisterNetEvent('hireEmployee')
+AddEventHandler('hireEmployee', function(data)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    local Employee = QBCore.Functions.GetPlayerByCitizenId(data.citizenid)
+    local ename = Employee.PlayerData.charinfo.firstname .. ' ' .. Employee.PlayerData.charinfo.lastname
+    local pname = Player .PlayerData.charinfo.firstname .. ' ' .. Player .PlayerData.charinfo.lastname
+    if Player.PlayerData.job.isboss then
+        local job = Player.PlayerData.job.name
+        local grade = 0
+        Employee.Functions.SetJob(job, 0)
+        Notifys('You Have Hired ' .. ename .. '!', 'success')
+        TriggerClientEvent('md-bossmenu:client:Result', Employee.PlayerData.source, 'hired', Player.PlayerData.job.name)
+        TriggerClientEvent('bossmenu:client:RefreshEmployees', src)
+        TriggerClientEvent('bossmenu:client:RefreshUI', src)
+    else
+        TriggerClientEvent('hireEmployeeResult', src, {success = false, error = 'Not authorized to hire'})
     end
 end)
 
@@ -54,6 +76,40 @@ AddEventHandler('md-bossmenu:server:UpdateDutyStatus', function(isOnDuty)
     end
 end)
 
+RegisterNetEvent('bossmenu:server:refreshEmployees')
+AddEventHandler('bossmenu:server:refreshEmployees', function(jobName)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    if Player.PlayerData.job.isboss and Player.PlayerData.job.name == jobName then
+        local employees = {}
+        local players = QBCore.Functions.GetQBPlayers()
+        for _, v in pairs(players) do
+            if v.PlayerData.job.name == jobName then
+                table.insert(employees, {
+                    id = v.PlayerData.citizenid,
+                    name = v.PlayerData.charinfo.firstname .. " " .. v.PlayerData.charinfo.lastname,
+                    grade = v.PlayerData.job.grade.name,
+                    gradeLevel = v.PlayerData.job.grade.level,
+                    onDuty = v.PlayerData.job.onduty
+                })
+            end
+        end
+        TriggerClientEvent('bossmenu:client:refreshEmployees', src, employees)
+    end
+end)
+
+RegisterNetEvent('getPlayers')
+AddEventHandler('getPlayers', function()
+    local src = source
+    local players = MySQL.query.await([[
+        SELECT 
+            citizenid, 
+            JSON_UNQUOTE(JSON_EXTRACT(charinfo, '$.firstname')) AS firstname,
+            JSON_UNQUOTE(JSON_EXTRACT(charinfo, '$.lastname')) AS lastname
+        FROM players
+    ]])
+    TriggerClientEvent('returnPlayers', src, players)
+end)
 
 lib.callback.register('md-bossmenu:server:fire', function(source, data)
     local src = source
@@ -61,7 +117,6 @@ lib.callback.register('md-bossmenu:server:fire', function(source, data)
     local Employee = QBCore.Functions.GetPlayerByCitizenId(data)
     local pname = Player.PlayerData.charinfo
     local ename = Employee.PlayerData.charinfo
-    print(Employee.PlayerData.source)
     if Player.PlayerData.job.isboss then 
         if not Player.PlayerData.job.name == Employee.PlayerData.job.name then return end
         if Employee then  
