@@ -2,25 +2,25 @@ local QBCore = exports['qb-core']:GetCoreObject()
 local isUIOpen = false
 
 CreateThread(function()
-for k, v in pairs (Config.Locations) do 
-    if v.job == nil then return end
-    print(v.job)
-    local options = {
-        {
-            label = 'Open Boss Menu',
-            event = 'qb-bossmenu:client:OpenMenu',
-            canInteract = function()
-                if QBCore.Functions.GetPlayerData().job.name == v.job then return true end
-            end
+    for k, v in pairs (Config.Locations) do 
+        if v.job == nil then return end
+        print(v.job)
+        local options = {
+            {
+                label = 'Open Boss Menu',
+                event = 'qb-bossmenu:client:OpenMenu',
+                canInteract = function()
+                    if QBCore.Functions.GetPlayerData().job.name == v.job then return true end
+                end
+            }
         }
-    }
-    if GetResourceState('qb-target') == 'started' then
-        exports['qb-target']:AddBoxZone('mdbossmenus'..k, v.loc, 1.5, 1.75, {name = 'mdbossmenus'..k,minZ = v.loc.z-2,maxZ = v.loc.z+2,}, {options = options, distance = 2.0})
-        print('QB-TARGET')
-    elseif GetResourceState('ox_target') == 'started' then
-        bossmenu = exports.ox_target:addBoxZone({ coords = v.loc, size = vec(1,1,2), rotation = 0, debug = false, options = options})
+        if GetResourceState('qb-target') == 'started' then
+            exports['qb-target']:AddBoxZone('mdbossmenus'..k, v.loc, 1.5, 1.75, {name = 'mdbossmenus'..k,minZ = v.loc.z-2,maxZ = v.loc.z+2,}, {options = options, distance = 2.0})
+            print('QB-TARGET')
+        elseif GetResourceState('ox_target') == 'started' then
+            bossmenu = exports.ox_target:addBoxZone({ coords = v.loc, size = vec(1,1,2), rotation = 0, debug = false, options = options})
+        end
     end
-end
 end)
 
 local function OpenUI()
@@ -104,5 +104,11 @@ AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
     local Player = QBCore.Functions.GetPlayerData()
     if JobInfo.onduty ~= Player.job.onduty then
         TriggerServerEvent('md-bossmenu:server:UpdateDutyStatus', JobInfo.onduty)
+        SendNUIMessage({
+            action = "updateDutyStatus",
+            employeeId = Player.citizenid,
+            onduty = JobInfo.onduty
+        })
     end
 end)
+

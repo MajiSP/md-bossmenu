@@ -55,23 +55,24 @@
               </td>
               <td class="p-2">{{ formatDutyTime(employee.dutyTime) }}</td>
               <td class="p-2 text-center">
-                <button @click="confirmFire(employee)" class="text-red-500">
+                <button @click.stop="confirmFire(employee)" class="text-red-500">
                   <font-awesome-icon icon="trash" />
                 </button>
               </td>
             </tr>
-            <tr v-if="employee.showDetails" class="border-t border-gray-700">
+            <tr v-if="employee.showDetails" class="border-t border-gray-700" :data-employee-id="employee.id">
               <td colspan="6" class="p-4">
-                <div ref="historyRef" :style="{ maxHeight: employee.showDetails ? historyHeight + 'px' : '0' }" class="overflow-hidden transition-all duration-300">
+                <div class="duty-history-content overflow-hidden transition-all duration-300" :style="{ maxHeight: employee.showDetails ? historyHeight + 'px' : '0' }">
                   <div>
                     <h4 class="font-bold mb-3">Duty History</h4>
-                    <ul class="space-y-2">
+                    <ul v-if="employee.dutyHistory && employee.dutyHistory.length > 0" class="space-y-2">
                       <li v-for="(entry, index) in employee.dutyHistory" :key="index" class="flex items-center">
                         <span :class="['w-4 h-4 rounded-full mr-3', entry.action === 'Clocked In' ? 'bg-green-500' : 'bg-red-500']"></span>
                         <span class="font-medium mr-2">{{ entry.action }}:</span>
                         <span class="text-gray-400">{{ formatHistoryEntry(entry) }}</span>
                       </li>
                     </ul>
+                    <p v-else class="text-gray-500">No duty history available.</p>
                   </div>
                 </div>
               </td>
@@ -93,14 +94,14 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, inject, nextTick, onMounted } from 'vue'
 import { formatDistanceToNow } from 'date-fns'
 
-const currentTheme = ref('dark-theme')
+const currentTheme = inject('theme')
 
-const employees = ref([])
-const grades = ref([])
-const salaries = ref({})
+const employees = inject('employees')
+const grades = inject('grades')
+const salaries = inject('salaries')
 
 const searchQuery = ref('')
 const sortKey = ref('grade')
@@ -138,18 +139,28 @@ const toggleEmployeeDetails = async (employee) => {
   employee.showDetails = !employee.showDetails
   await nextTick()
   if (employee.showDetails) {
-    historyHeight.value = historyRef.value.scrollHeight
+    const historyElement = document.querySelector(`[data-employee-id="${employee.id}"] .duty-history-content`)
+    historyHeight.value = historyElement ? historyElement.scrollHeight : 0
   } else {
     historyHeight.value = 0
   }
 }
 
+const updateDutyStatus = (employeeId, onDuty) => {
+  const employee = employees.value.find(emp => emp.id === employeeId)
+  if (employee) {
+    employee.onDuty = onDuty
+  }
+}
+
 const formatDutyTime = (dutyTime) => {
-  return formatDistanceToNow(new Date(dutyTime), { addSuffix: true })
+  if (!dutyTime || isNaN(dutyTime)) return 'N/A'
+  return formatDistanceToNow(new Date(dutyTime * 1000), { addSuffix: true })
 }
 
 const formatHistoryEntry = (entry) => {
-  return `${entry.action} at ${new Date(entry.timestamp).toLocaleString()}`
+  if (!entry || !entry.timestamp || isNaN(entry.timestamp)) return 'Invalid entry'
+  return `${entry.action} at ${new Date(entry.timestamp * 1000).toLocaleString()}`
 }
 
 const confirmFire = (employee) => {
@@ -160,4 +171,12 @@ const confirmFire = (employee) => {
 const fireEmployee = () => {
   showConfirmation.value = false
 }
+
+onMounted(() => {
+  window.addEventListener('message', (event) => {
+    if (event.data.action === "updateDutyStatus") {
+      updateDutyStatus(event.data.employeeId, event.data.onduty)
+    }
+  })
+})
 </script>

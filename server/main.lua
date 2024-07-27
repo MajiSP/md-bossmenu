@@ -17,7 +17,10 @@ AddEventHandler('bossmenu:server:GetEmployees', function()
                     id = v.PlayerData.citizenid,
                     name = v.PlayerData.charinfo.firstname .. " " .. v.PlayerData.charinfo.lastname,
                     grade = v.PlayerData.job.grade.name,
-                    gradeLevel = v.PlayerData.job.grade.level
+                    gradeLevel = v.PlayerData.job.grade.level,
+                    onDuty = v.PlayerData.job.onduty,
+                    dutyTime = v.PlayerData.job.lastDutyChange or os.time(),
+                    dutyHistory = v.PlayerData.job.dutyHistory or {}
                 })
             end
         end

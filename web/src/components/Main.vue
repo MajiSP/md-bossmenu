@@ -43,8 +43,8 @@ import HomePage from './HomePage.vue'
 
 const isExpanded = ref(false)
 const theme = ref('dark-theme')
-const isUIOpen = ref(true)
-const isBoss = ref(true)
+const isUIOpen = ref(false)
+const isBoss = ref(false)
 
 const activePage = shallowRef('Home')
 
@@ -97,11 +97,6 @@ function getVisibleMenuItems() {
   return menuItems.filter(item => !item.bossOnly || isBoss.value)
 }
 
-provide('employees', employees)
-provide('grades', grades)
-provide('salaries', salaries)
-provide('theme', theme)
-
 window.addEventListener('message', (event) => {
   if (event.data.action === 'openUI') {
     isUIOpen.value = true
@@ -120,4 +115,10 @@ window.addEventListener('message', (event) => {
     salaries.value = event.data.salaries
   }
 })
+
+provide('employees', employees)
+provide('grades', grades)
+provide('salaries', salaries)
+provide('theme', theme)
+
 </script>
