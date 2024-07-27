@@ -106,11 +106,14 @@ const formatTime = (time) => {
 }
 
 const openStash = (type) => {
-  fetch(`https://${GetParentResourceName()}/openStash`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type })
-  })
+  closeUI()
+  setTimeout(() => {
+    fetch(`https://${GetParentResourceName()}/openStash`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type })
+    })
+  }, 100)
 }
 
 const updateLogs = (logs) => {
