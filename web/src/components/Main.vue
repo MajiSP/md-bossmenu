@@ -96,6 +96,12 @@ const closeUI = () => {
   })
 }
 
+const handleCloseUI = () => {
+  closeUI()
+}
+
+provide('closeUI', handleCloseUI)
+
 function getVisibleMenuItems() {
   return menuItems.filter(item => !item.bossOnly || isBoss.value)
 }

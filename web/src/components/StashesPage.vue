@@ -44,6 +44,8 @@ const props = defineProps({
 })
   
 const currentTheme = inject('theme')
+
+const closeUI = inject('closeUI')
   
 const showLogs = ref(false)
 const stashLogs = ref([])
