@@ -9,12 +9,13 @@
           <font-awesome-icon icon="bars" />
         </button>
         <div 
-          v-for="item in menuItems" 
-          :key="item.icon" 
-          class="sidebar-item" 
-          :class="{ 'active': activePage === item.name }"
-          @click="setActivePage(item.name)"
-        >
+            v-for="item in menuItems" 
+            :key="item.icon" 
+            v-if="!item.bossOnly || isBoss"
+            class="sidebar-item" 
+            :class="{ 'active': activePage === item.name }"
+            @click="setActivePage(item.name)"
+          >
           <font-awesome-icon :icon="item.icon" />
           <span v-if="isExpanded">{{ item.name }}</span>
         </div>
@@ -22,9 +23,9 @@
       <div class="main-content flex flex-col">
         <h1 class="text-3xl font-bold px-4 mb-4">Boss Menu</h1>
         <div :class="['flex-grow pl-4 pr-4', { 'overflow-y-auto': activePage !== 'Employees', 'overflow-hidden': activePage === 'Employees' }]">
-          <StatisticsPage v-if="activePage === 'Statistics'" />
-          <EmployeesPage v-if="activePage === 'Employees'" class="h-full" />
-          <BonusesPage v-if="activePage === 'Bonuses'" />
+          <StatisticsPage v-if="activePage === 'Statistics' && isBoss" />
+          <EmployeesPage v-if="activePage === 'Employees' && isBoss" class="h-full" />
+          <BonusesPage v-if="activePage === 'Bonuses' && isBoss" />
           <SettingsPage v-if="activePage === 'Settings'" @theme-changed="updateTheme" />
         </div>
       </div>
@@ -40,16 +41,16 @@ import BonusesPage from './BonusesPage.vue'
 import SettingsPage from './SettingsPage.vue'
 
 const isExpanded = ref(false)
-const activePage = ref('Employees')
+const activePage = ref('Settings')
 const theme = ref('dark-theme')
-
 const isUIOpen = ref(false)
+const isBoss = ref(false)
 
 const menuItems = [
-  { icon: 'users', name: 'Employees' },
-  { icon: 'chart-bar', name: 'Statistics' },
-  { icon: 'gift', name: 'Bonuses' },
-  { icon: 'cog', name: 'Settings' },
+  { icon: 'users', name: 'Employees', bossOnly: true },
+  { icon: 'chart-bar', name: 'Statistics', bossOnly: true },
+  { icon: 'gift', name: 'Bonuses', bossOnly: true },
+  { icon: 'cog', name: 'Settings', bossOnly: false },
 ]
 
 const employees = ref([])
@@ -88,6 +89,8 @@ const closeUI = () => {
 window.addEventListener('message', (event) => {
   if (event.data.action === 'openUI') {
     isUIOpen.value = true
+    isBoss.value = event.data.isBoss
+    activePage.value = isBoss.value ? 'Employees' : 'Settings'
   } else if (event.data.action === 'closeUI') {
     isUIOpen.value = false
   } else if (event.data.action === 'refreshEmployees') {
