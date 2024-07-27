@@ -23,6 +23,73 @@ select::-ms-expand {
   display: none;
 }
 
+.home-page {
+  @apply flex-1 py-10 overflow-y-auto overflow-x-auto;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.home-page h2 {
+  @apply text-3xl font-bold mb-8 text-center;
+}
+
+.employee-of-month {
+  @apply flex flex-col items-center mb-8;
+}
+
+.employee-of-month img {
+  @apply w-48 h-48 object-cover rounded-lg shadow-lg;
+}
+
+.employee-name {
+  @apply text-2xl font-bold mt-4 text-center;
+}
+
+.select-employee-btn {
+  @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 mx-auto block mb-4;
+}
+
+.employee-selection {
+  @apply mt-4 space-y-4 px-4;
+}
+
+.employee-select {
+  @apply w-full p-2 rounded-lg;
+}
+
+.upload-btn,
+.confirm-btn {
+  @apply bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-200 w-full;
+}
+
+.expand-enter-active,
+.expand-leave-active {
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  max-height: 300px;
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+
+.light-theme .home-page {
+  @apply bg-white rounded-lg;
+}
+
+.light-theme .employee-select {
+  @apply bg-white border border-gray-300 text-gray-700;
+}
+
+.dark-theme .home-page {
+  @apply bg-gray-800 rounded-lg;
+}
+
+.dark-theme .employee-select {
+  @apply bg-gray-700 text-white border-gray-600;
+}
+
 .main-content {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);

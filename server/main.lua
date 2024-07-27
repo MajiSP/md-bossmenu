@@ -5,10 +5,11 @@ AddEventHandler('bossmenu:server:GetEmployees', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local Name = Player.PlayerData.charinfo
+    local employees = {}
+    local grades = {}
+    local salaries = {}
+    
     if Player.PlayerData.job.isboss then
-        local employees = {}
-        local grades = {}
-        local salaries = {}
         local players = QBCore.Functions.GetQBPlayers()
         for _, v in pairs(players) do
             if v.PlayerData.job.name == Player.PlayerData.job.name then

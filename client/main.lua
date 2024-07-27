@@ -4,18 +4,16 @@ local isUIOpen = false
 
 local function OpenUI()
     local Player = QBCore.Functions.GetPlayerData()
-        if not isUIOpen then
-            TriggerEvent('animations:client:EmoteCommandStart', {'tablet'}) 
-            isUIOpen = true
-            SetNuiFocus(true, true)
-            TriggerServerEvent('bossmenu:server:GetEmployees')
-            SendNUIMessage({
-                action = "openUI",
-                isBoss = Player.job.isboss
-            })
-        end
-    else
-        Notify("You are not authorized to access the boss menu.", "error")
+    if not isUIOpen then
+        TriggerEvent('animations:client:EmoteCommandStart', {'tablet'}) 
+        isUIOpen = true
+        SetNuiFocus(true, true)
+        TriggerServerEvent('bossmenu:server:GetEmployees')
+        SendNUIMessage({
+            action = "openUI",
+            isBoss = Player.job.isboss,
+            menuItems = Config.MenuItems
+        })
     end
 end
 
