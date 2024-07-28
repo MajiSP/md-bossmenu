@@ -47,7 +47,7 @@ import ChatPage from './ChatPage.vue'
 
 const isExpanded = ref(false)
 const theme = ref('dark-theme')
-const isUIOpen = ref(true)
+const isUIOpen = ref(false)
 const isBoss = ref(false)
 
 const activePage = shallowRef('Home')
