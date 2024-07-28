@@ -1,0 +1,30 @@
+{
+  "name": "lj-boilerplate",
+  "version": "1.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --emptyOutDir",
+    "preview": "vite preview --port 5050"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@headlessui/vue": "^1.7.13",
+    "@heroicons/vue": "^2.0.17",
+    "@tailwindcss/typography": "^0.5.9",
+    "autoprefixer": "^10.4.14",
+    "chart.js": "^4.4.3",
+    "date-fns": "^3.6.0",
+    "vue": "^3.2.45",
+    "vue-chartjs": "^5.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.3",
+    "@vitejs/plugin-vue": "^2.0.1",
+    "tailwindcss": "^3.3.1",
+    "tailwindcss-animate": "^1.0.5",
+    "vite": "^2.7.7"
+  }
+}
