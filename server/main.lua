@@ -1,5 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local StashLogs = {}
+local ChatHistory = {}
 
 RegisterNetEvent('bossmenu:server:GetEmployees')
 AddEventHandler('bossmenu:server:GetEmployees', function()
@@ -122,6 +123,38 @@ AddEventHandler('bossmenu:server:refreshEmployees', function(jobName)
             end
         end
         TriggerClientEvent('bossmenu:client:refreshEmployees', src, employees)
+    end
+end)
+
+RegisterNetEvent('md-bossmenu:server:SendChatMessage')
+AddEventHandler('md-bossmenu:server:SendChatMessage', function(message)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    
+    message.job = Player.PlayerData.job.name
+    message.timestamp = os.time()
+    
+    MySQL.insert('INSERT INTO database (sender, content, job, timestamp) VALUES (?, ?, ?, ?)',
+        {message.sender, message.content, message.job, message.timestamp},
+        function(id)
+            message.id = id
+            TriggerClientEvent('md-bossmenu:client:ReceiveChatMessage', -1, message)
+        end
+    )
+end)
+
+RegisterNetEvent('md-bossmenu:server:GetChatHistory')
+AddEventHandler('md-bossmenu:server:GetChatHistory', function(job)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    
+    if Player.PlayerData.job.name == job then
+        MySQL.query('SELECT * FROM database WHERE job = ? ORDER BY timestamp DESC LIMIT 100',
+            {job},
+            function(results)
+                TriggerClientEvent('md-bossmenu:client:ReceiveChatHistory', src, results)
+            end
+        )
     end
 end)
 

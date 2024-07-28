@@ -153,6 +153,32 @@ AddEventHandler('updateStashLogs', function(log)
     })
 end)
 
+RegisterNUICallback('sendChatMessage', function(data, cb)
+    TriggerServerEvent('md-bossmenu:server:SendChatMessage', data)
+    cb('ok')
+end)
+
+RegisterNetEvent('md-bossmenu:client:ReceiveChatMessage')
+AddEventHandler('md-bossmenu:client:ReceiveChatMessage', function(message)
+    SendNUIMessage({
+        action = "updateChat",
+        message = message
+    })
+end)
+
+RegisterNUICallback('getChatHistory', function(data, cb)
+    TriggerServerEvent('md-bossmenu:server:GetChatHistory', data.job)
+    cb('ok')
+end)
+
+RegisterNetEvent('md-bossmenu:client:ReceiveChatHistory')
+AddEventHandler('md-bossmenu:client:ReceiveChatHistory', function(messages)
+    SendNUIMessage({
+        action = "setChatHistory",
+        messages = messages
+    })
+end)
+
 RegisterNetEvent('QBCore:Client:OnJobUpdate')
 AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
     local Player = QBCore.Functions.GetPlayerData()
