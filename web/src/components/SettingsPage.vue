@@ -37,8 +37,20 @@
           </select>
         </div>
       </div>
+      <div class="contributors-container mt-8 p-4 rounded-lg" :class="currentTheme === 'light-theme' ? 'bg-gray-100' : 'bg-gray-800'">
+        <h3 class="text-xl font-bold mb-4">Contributors</h3>
+        <div class="grid grid-cols-3 gap-4">
+          <div v-for="contributor in contributors" :key="contributor.name" class="flex flex-col items-center">
+            <a :href="contributor.github" target="_blank" rel="noopener noreferrer">
+              <img :src="contributor.logo" :alt="contributor.name" class="w-16 h-16 rounded-full mb-2">
+            </a>
+            <span class="font-semibold">{{ contributor.name }}</span>
+            <span class="text-sm text-gray-500 mt-1">{{ contributor.details }}</span>
+          </div>
+        </div>
+      </div>
     </div>
-  </template>
+</template>
   
   <script setup>
   import { ref, inject } from 'vue'
@@ -49,6 +61,11 @@
     emailNotifications: true,
     language: 'en'
   })
+
+  const contributors = [
+  { name: 'Mustache Dom', logo: '/public/img/md.png', github: 'https://github.com/mustachedom', details: 'Backend Developer' },
+  { name: 'Maji', logo: '/public/img/maji.png', github: 'https://github.com/majisp', details: 'Frontend Developer' },
+]
   
   const changeTheme = (newTheme) => {
     currentTheme.value = newTheme
