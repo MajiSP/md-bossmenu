@@ -1,7 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local notify = Config.Notify -- qb or ox
-local logs = true 
-local logapi = '9ac512c055e004d7e429139de6d2d422'
+local logs = false 
+local logapi = ''
 local endpoint = 'https://api.fivemerr.com/v1/logs'
 local headers = {
             ['Authorization'] = logapi,
