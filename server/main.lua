@@ -5,7 +5,7 @@ RegisterNetEvent('bossmenu:server:GetEmployees')
 AddEventHandler('bossmenu:server:GetEmployees', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    if Player and Player.PlayerData.job.isboss then
+    if Player and IsBoss(Player) then
         local Name = Player.PlayerData.charinfo
         local employees = {}
         local grades = {}
@@ -99,20 +99,14 @@ AddEventHandler('hireEmployee', function(data)
         TriggerClientEvent('bossmenu:client:RefreshUI', src)
         return
     end
-    local ename = Employee.PlayerData.charinfo.firstname .. ' ' .. Employee.PlayerData.charinfo.lastname
-    local pname = Player .PlayerData.charinfo.firstname .. ' ' .. Player .PlayerData.charinfo.lastname
-    if ename == pname then Notifys('You Cant Hire Yourself You Silly Goose', 'error') return end
-    if Player.PlayerData.job.isboss then
-        local job = Player.PlayerData.job.name
-        local grade = 0
-        Employee.Functions.SetJob(job, '0')
-        Notifys('You Have Hired ' .. ename .. '!', 'success')
-        TriggerClientEvent('md-bossmenu:client:Result', Employee.PlayerData.source, 'hired', Player.PlayerData.job.name)
-        TriggerClientEvent('bossmenu:client:RefreshEmployees', src)
-        TriggerClientEvent('bossmenu:client:RefreshUI', src)
-    else
-        TriggerClientEvent('hireEmployeeResult', src, {success = false, error = 'Not authorized to hire'})
-    end
+    if GetName(Employee) == GetName(Player) then Notifys('You Cant Hire Yourself You Silly Goose', 'error') return end
+    if not IsBoss(Player) then return end
+    local grade = 0
+    Employee.Functions.SetJob(GetJob(Player), '0')
+    Notifys('You Have Hired ' .. GetName(Employee) .. '!', 'success')
+    TriggerClientEvent('md-bossmenu:client:Result', Employee.PlayerData.source, 'hired', GetJob(Player))
+    TriggerClientEvent('bossmenu:client:RefreshEmployees', src)
+    TriggerClientEvent('bossmenu:client:RefreshUI', src)
 end)
 
 RegisterNetEvent('md-bossmenu:server:UpdateDutyStatus')

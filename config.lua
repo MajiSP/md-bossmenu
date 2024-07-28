@@ -1,5 +1,5 @@
 Config = {}
-Config.Notify = 'qb' -- qb/ox/okok
+Config.Notify = 'ox' -- qb/ox/okok
 Config.OldQB = true
 Config.MenuItems = {
     { icon = 'home', bossOnly = false }, -- home page

@@ -31,6 +31,15 @@ RegisterNetEvent('md-bossmenu:client:Result', function(type, biz, val)
     end
 end)
 
+local function setCurrentUser()
+    local Player = QBCore.Functions.GetPlayerData()
+    SendNUIMessage({
+        action = "setCurrentUser",
+        username = Player.charinfo.firstname..''.. Player.charinfo.lastname,
+        job = Player.job.name,
+    })
+end
+
 local function OpenUI()
     local Player = QBCore.Functions.GetPlayerData()
     if not isUIOpen then
@@ -38,6 +47,7 @@ local function OpenUI()
         isUIOpen = true
         SetNuiFocus(true, true)
         TriggerServerEvent('bossmenu:server:GetEmployees')
+        setCurrentUser()
         SendNUIMessage({
             action = "openUI",
             isBoss = Player.job.isboss,

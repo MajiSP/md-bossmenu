@@ -57,7 +57,10 @@ lib.callback.register('md-bossmenu:server:PayBonus', function(source, amount, id
             newbal.bank = bbal + amount
             MySQL.update('UPDATE players SET money  = ? WHERE citizenid = ?', {json.encode(newbal), id})
             local ename = GetOfflineName(edata[1]['charinfo'])
-            Log('ID: ' .. src .. ' Name: ' .. pname .. ' Paid ' .. ename .. ' $' .. amount .. ' From ' .. Player.PlayerData.job.name .. '!', 'bonus')
+            local newbalance = money[1].account_balance - amount
+            MySQL.update('UPDATE bank_accounts SET account_balance  = ? WHERE account_name = ?', {newbalance, GetJob(Player)})
+            Log('ID: ' .. src .. ' Name: ' .. pname .. ' Paid ' .. ename .. ' $' .. amount .. ' From ' .. GetJob(Player) .. '!', 'bonus')
+            Log('ID: ' .. src .. ' Job: ' .. GetJob(Player) .. ' Now Has $' ..newbalance .. '!', 'balance')
         end
     else
         local ename = GetName(Employee)
@@ -68,9 +71,9 @@ lib.callback.register('md-bossmenu:server:PayBonus', function(source, amount, id
                     MySQL.update('UPDATE bank_accounts SET account_balance  = ? WHERE account_name = ?', {newbalance, Player.PlayerData.job.name})
                     Employee.Functions.AddMoney('bank', amount)
                     Log('ID: ' .. src .. ' Name: ' .. pname .. ' Paid $' .. amount .. ' In a Bonus To ' .. ename, 'bonus')
-                    Log('ID: ' .. src .. ' Name: ' .. pname .. ' Paid A Bonus And Now ' .. Player.PlayerData.job.name .. ' Have A Balance Of $' .. newbalance .. '!','balance')
-                    TriggerClientEvent('md-bossmenu:client:Result', Employee.PlayerData.source, 'paid', Player.PlayerData.job.name, amount)
-                    return true, ename, amount, Player.PlayerData.job.name
+                    Log('ID: ' .. src .. ' Name: ' .. pname .. ' Paid A Bonus And Now ' .. GetJob(Player) .. ' Have A Balance Of $' .. newbalance .. '!','balance')
+                    TriggerClientEvent('md-bossmenu:client:Result', Employee.PlayerData.source, 'paid', GetJob(Player), amount)
+                    return true, ename, amount, GetJob(Player)
                 end
             end
         end
