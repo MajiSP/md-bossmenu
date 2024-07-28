@@ -2,19 +2,19 @@
     <div class="stashes-container">
       <h2 class="text-2xl font-bold mb-6">Stashes</h2>
       <div class="flex flex-col items-center space-y-4">
-        <button @click="openStash('personal')" class="stash-button max-w-xs w-full">
+        <button @click="sendInteractionToClient('click', { component: 'personalStash', page: 'stashPage' }); openStash('personal')" class="stash-button max-w-xs w-full">
           Personal Stash
         </button>
-        <button @click="openStash('shared')" class="stash-button max-w-xs w-full">
+        <button @click="sendInteractionToClient('click', { component: 'sharedStash', page: 'stashPage' }); openStash('shared')" class="stash-button max-w-xs w-full">
           Shared Stash
         </button>
-        <button v-if="isBoss" @click="openStash('boss')" class="stash-button max-w-xs w-full">
+        <button v-if="isBoss" @click="sendInteractionToClient('click', { component: 'bossStash', page: 'stashPage' }); openStash('boss')" class="stash-button max-w-xs w-full">
           Boss Stash
         </button>
       </div>
       
       <div v-if="isBoss" class="mt-8">
-        <div @click="toggleLogs" class="flex justify-center cursor-pointer">
+        <div @click="sendInteractionToClient('click', { component: 'showLogs', page: 'stashPage' }); toggleLogs()" class="flex justify-center cursor-pointer">
             <font-awesome-icon :icon="showLogs ? 'chevron-up' : 'chevron-down'" class="text-2xl" />
         </div>
         <div v-if="showLogs" class="mt-4 space-y-2">
@@ -27,9 +27,9 @@
             <span class="font-mono">{{ formatTime(log.time) }}</span>
             </div>
             <div v-if="totalPages > 1" class="flex justify-center mt-4 mb-4 space-x-2">
-            <button @click="prevPage" :disabled="currentPage === 1" class="px-2 py-1 rounded" :class="getButtonClass()">Prev</button>
+            <button @click="sendInteractionToClient('click', { component: 'prevPage', page: 'stashPage' }); prevPage()" :disabled="currentPage === 1" class="px-2 py-1 rounded" :class="getButtonClass()">Prev</button>
             <span>{{ currentPage }} / {{ totalPages }}</span>
-            <button @click="nextPage" :disabled="currentPage === totalPages" class="px-2 py-1 rounded" :class="getButtonClass()">Next</button>
+            <button @click="sendInteractionToClient('click', { component: 'nextPage', page: 'stashPage' }); nextPage()" :disabled="currentPage === totalPages" class="px-2 py-1 rounded" :class="getButtonClass()">Next</button>
             </div>
         </div>
         </div>
@@ -38,6 +38,8 @@
   
 <script setup>
 import { ref, defineProps, inject, computed } from 'vue'
+import { useSound } from './sounds'
+const { sendInteractionToClient } = useSound()
   
 const props = defineProps({
     isBoss: Boolean
@@ -121,6 +123,10 @@ const openStash = (type) => {
 const updateLogs = (logs) => {
   stashLogs.value = logs
   currentPage.value = 1
+}
+
+const toggleLogs = () => {
+  showLogs.value = !showLogs.value
 }
 
 window.addEventListener('message', (event) => {

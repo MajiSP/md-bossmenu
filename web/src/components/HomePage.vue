@@ -5,7 +5,7 @@
         <img :src="employeeOfTheMonth.image" alt="Employee of the Month" class="rounded-lg shadow-lg" />
         <h3 class="employee-name mt-4">{{ employeeOfTheMonth.name }}</h3>
       </div>
-      <button v-if="isBoss" @click="toggleEmployeeSelection" class="select-employee-btn">
+      <button v-if="isBoss" @click="sendInteractionToClient('click', { component: 'expandButton', page: 'HomePage' }); toggleEmployeeSelection()" class="select-employee-btn">
         {{ isSelectionExpanded ? 'Hide Selection' : 'Select Employee of the Month' }}
         <font-awesome-icon :icon="isSelectionExpanded ? 'chevron-up' : 'chevron-down'" class="ml-2" />
       </button>
@@ -16,8 +16,8 @@
               {{ employee.name }}
             </option>
           </select>
-          <button @click="uploadImage" class="upload-btn">Upload Image</button>
-          <button @click="confirmSelection" class="confirm-btn">Confirm</button>
+          <button @click="sendInteractionToClient('click', { component: 'UploadButton', page: 'HomePage' }); uploadImage()" class="upload-btn">Upload Image</button>
+          <button @click="sendInteractionToClient('click', { component: 'ConfirmButton', page: 'HomePage' }); confirmSelection()" class="confirm-btn">Confirm</button>
         </div>
       </transition>
     </div>
@@ -25,6 +25,8 @@
   
   <script setup>
   import { ref } from 'vue'
+  import { useSound } from './sounds'
+  const { sendInteractionToClient } = useSound()
   
   const props = defineProps(['isBoss', 'employees'])
   

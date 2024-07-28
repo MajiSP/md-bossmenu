@@ -1,38 +1,48 @@
 <template>
-  <div v-if="isUIOpen" :key="forceRender" :class="['boss-menu-container', theme]">
-    <div class="boss-menu-content">
-      <button @click="closeUI" class="absolute top-2 right-2 p-2 rounded-full transition-colors duration-200" :class="theme === 'light-theme' ? 'text-gray-600 hover:bg-gray-200' : 'text-gray-300 hover:bg-gray-700'">
-        <font-awesome-icon icon="times" class="w-5 h-5" />
-      </button>
-      <div :class="['sidebar', { 'expanded': isExpanded }]">
-        <button @click="toggleSidebar" class="expand-btn">
-          <font-awesome-icon icon="bars" />
-        </button>
-        <div 
-          v-for="item in getVisibleMenuItems()" 
-          :key="item.icon" 
-          class="sidebar-item" 
-          :class="{ 'active': activePage === item.name }"
-          @click="setActivePage(item.name)"
+    <div v-if="isUIOpen" :key="forceRender" :class="['boss-menu-container', theme]">
+      <div class="boss-menu-content">
+        <button 
+          @click="closeUI(); sendInteractionToClient('click', { component: 'closeButton' })" 
+          @mouseenter="sendInteractionToClient('hover', { component: 'closeButton' })" 
+          class="absolute top-2 right-2 p-2 rounded-full transition-colors duration-200" 
+          :class="theme === 'light-theme' ? 'text-gray-600 hover:bg-gray-200' : 'text-gray-300 hover:bg-gray-700'"
         >
-          <font-awesome-icon :icon="item.icon" />
-          <span v-if="isExpanded">{{ item.name }}</span>
+          <font-awesome-icon icon="times" class="w-5 h-5" />
+        </button>
+        <div :class="['sidebar', { 'expanded': isExpanded }]">
+          <button 
+            @click="toggleSidebar(); sendInteractionToClient('click', { component: 'sidebarToggle' })" 
+            @mouseenter="sendInteractionToClient('hover', { component: 'sidebarToggle' })" 
+            class="expand-btn"
+          >
+            <font-awesome-icon icon="bars" />
+          </button>
+          <div
+            v-for="item in getVisibleMenuItems()"
+            :key="item.icon"
+            class="sidebar-item"
+            :class="{ 'active': activePage === item.name }"
+            @click="setActivePage(item.name); sendInteractionToClient('click', { component: 'sidebarItem', item: item.name })"
+            @mouseenter="sendInteractionToClient('hover', { component: 'sidebarItem', item: item.name })"
+          >
+            <font-awesome-icon :icon="item.icon" />
+            <span v-if="isExpanded">{{ item.name }}</span>
+          </div>
         </div>
-      </div>
-      <div class="main-content flex flex-col">
-        <h1 class="text-3xl font-bold px-4 mb-4">Boss Menu</h1>
-        <div :class="['flex-grow pl-4 pr-4', { 'overflow-y-auto': activePage !== 'Home', 'overflow-hidden': activePage === 'Home' }]">
-          <HomePage v-if="activePage === 'Home'" :isBoss="isBoss" :employees="employees" />
-          <StatisticsPage v-if="activePage === 'Statistics' && isBoss" />
-          <EmployeesPage v-if="activePage === 'Employees' && isBoss" class="h-full" />
-          <BonusesPage v-if="activePage === 'Bonuses' && isBoss" />
-          <StashesPage v-if="activePage === 'Stashes'" :isBoss="isBoss" />
-          <ChatPage v-if="activePage === 'Chat'" :isBoss="isBoss" />
-          <SettingsPage v-if="activePage === 'Settings'" @theme-changed="updateTheme" />
+        <div class="main-content flex flex-col">
+          <h1 class="text-3xl font-bold px-4 mb-4">Boss Menu</h1>
+          <div :class="['flex-grow pl-4 pr-4', { 'overflow-y-auto': activePage !== 'Home', 'overflow-hidden': activePage === 'Home' }]">
+            <HomePage v-if="activePage === 'Home'" :isBoss="isBoss" :employees="employees" />
+            <StatisticsPage v-if="activePage === 'Statistics' && isBoss" />
+            <EmployeesPage v-if="activePage === 'Employees' && isBoss" class="h-full" />
+            <BonusesPage v-if="activePage === 'Bonuses' && isBoss" />
+            <StashesPage v-if="activePage === 'Stashes'" :isBoss="isBoss" />
+            <ChatPage v-if="activePage === 'Chat'" :isBoss="isBoss" />
+            <SettingsPage v-if="activePage === 'Settings'" @theme-changed="updateTheme" />
+          </div>
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -85,6 +95,14 @@ const setActivePage = (pageName) => {
 
 const updateTheme = (newTheme) => {
   theme.value = newTheme
+}
+
+const sendInteractionToClient = (interactionType, data) => {
+  fetch(`https://${GetParentResourceName()}/PlaySound`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: interactionType, data: data })
+  })
 }
 
 const closeUI = () => {

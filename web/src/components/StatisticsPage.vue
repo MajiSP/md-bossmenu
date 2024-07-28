@@ -33,6 +33,8 @@
 import { ref, computed, inject } from 'vue'
 import Chart from 'chart.js/auto'
 import { Chart as ChartComponent } from 'vue-chartjs'
+import { useSound } from './sounds'
+const { sendInteractionToClient } = useSound()
 
 const currentTheme = inject('theme')
 

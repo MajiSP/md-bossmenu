@@ -12,7 +12,7 @@
     </div>
     <div class="chat-input">
       <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Type a message..." />
-      <button @click="sendMessage" class="send-button">
+      <button @click="sendInteractionToClient('click', { component: 'sendMessage', page: 'ChatPage' }); sendMessage()" class="send-button">
         <font-awesome-icon icon="paper-plane" />
       </button>
     </div>
@@ -22,6 +22,8 @@
 <script setup>
 import { ref, onMounted, nextTick } from 'vue'
 import { formatDistanceToNow } from 'date-fns'
+import { useSound } from './sounds'
+const { sendInteractionToClient } = useSound()
 
 const messages = ref([])
 const newMessage = ref('')

@@ -24,7 +24,7 @@
             >
           </td>
           <td class="p-2 text-center">
-            <button @click="confirmBonus(employee)" class="px-2 py-1 rounded" :class="[employee.bonusAmount > 0 ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-400 text-gray-600 cursor-not-allowed']" :disabled="employee.bonusAmount <= 0">Pay Bonus</button>
+            <button @click="sendInteractionToClient('click', { component: 'PayBonus', page: 'BonusesPage' }); confirmBonus(employee)" class="px-2 py-1 rounded" :class="[employee.bonusAmount > 0 ? 'bg-green-500 text-white hover:bg-green-600' : 'bg-gray-400 text-gray-600 cursor-not-allowed']" :disabled="employee.bonusAmount <= 0">Pay Bonus</button>
           </td>
         </tr>
       </tbody>
@@ -33,8 +33,8 @@
       <div :class="['p-6 rounded', currentTheme === 'light-theme' ? 'bg-white text-gray-800' : 'bg-gray-800 text-white']">
         <p>Are you sure you want to pay a bonus of ${{ selectedEmployee?.bonusAmount }} to {{ selectedEmployee?.name }}?</p>
         <div class="mt-4 flex justify-end">
-          <button @click="payBonus" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Yes</button>
-          <button @click="showConfirmation = false" class="bg-gray-500 text-white px-4 py-2 rounded">No</button>
+          <button @click="payBonus(); sendInteractionToClient('click', { component: 'YesButton', page: 'BonusesPage' })" class="bg-green-500 text-white px-4 py-2 rounded mr-2">Yes</button>
+          <button @click="sendInteractionToClient('click', { component: 'NoButton', page: 'BonusesPage' }); showConfirmation = false" class="bg-gray-500 text-white px-4 py-2 rounded">No</button>
         </div>
       </div>
     </div>
@@ -43,6 +43,8 @@
 
 <script setup>
 import { ref, inject } from 'vue'
+import { useSound } from './sounds'
+const { sendInteractionToClient } = useSound()
 
 const employees = inject('employees')
 const salaries = inject('salaries')

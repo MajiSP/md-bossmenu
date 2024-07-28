@@ -7,13 +7,13 @@
           <h3 class="text-xl mb-4">Theme</h3>
           <div class="flex space-x-4">
             <button 
-                @click="changeTheme('light-theme')"
+                @click="sendInteractionToClient('click', { component: 'changeThemeLight', page: 'SettingsPage' }); changeTheme('light-theme')"
                 :class="['setting-button px-4 py-2 rounded', currentTheme === 'light-theme' ? 'active' : '']"
                 >
                 Light
                 </button>
                 <button 
-                @click="changeTheme('dark-theme')"
+                @click="sendInteractionToClient('click', { component: 'changeThemeDark', page: 'SettingsPage' }); changeTheme('dark-theme')"
                 :class="['setting-button px-4 py-2 rounded', currentTheme === 'dark-theme' ? 'active' : '']"
                 >
                 Dark
@@ -54,6 +54,8 @@
   
   <script setup>
   import { ref, inject } from 'vue'
+  import { useSound } from './sounds'
+  const { sendInteractionToClient } = useSound()
   
   const currentTheme = inject('theme')
   

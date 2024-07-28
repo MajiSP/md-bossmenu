@@ -1,6 +1,6 @@
 <template>
   <div class="employees-container relative">
-    <button @click="openHireModal" class="absolute top-0 right-0 bg-blue-500 text-white px-4 py-2 rounded">
+    <button @click="sendInteractionToClient('click', { component: 'hireButton', page: 'EmployeesPage' }); openHireModal()" class="absolute top-0 right-0 bg-blue-500 text-white px-4 py-2 rounded">
       Hire New Employee
     </button>
     <h2 class="text-2xl font-bold mb-6">Employees</h2>
@@ -66,7 +66,7 @@
         </thead>
         <tbody class="min-h-[350px]">
           <template v-for="employee in filteredEmployees" :key="employee.id">
-            <tr @click="toggleEmployeeDetails(employee)" class="border-t border-gray-700 cursor-pointer">
+            <tr @click="sendInteractionToClient('click', { component: 'detailsButton', page: 'EmployeesPage' }); toggleEmployeeDetails(employee)" class="border-t border-gray-700 cursor-pointer">
               <td class="p-2">
                 <select v-model="employee.grade" class="bg-gray-700 rounded p-1 appearance-none focus:outline-none select-none focus:ring-0 focus:border-gray-700">
                   <option v-for="grade in sortedGrades" :key="grade.level" :value="grade.name">{{ grade.name }}</option>
@@ -111,8 +111,8 @@
       <div :class="['p-6 rounded', currentTheme === 'light-theme' ? 'bg-white text-gray-800' : 'bg-gray-800 text-white']">
         <p>Are you sure you want to fire this employee?</p>
         <div class="mt-4 flex justify-end">
-          <button @click="fireEmployee" class="bg-red-500 text-white px-4 py-2 rounded mr-2">Yes</button>
-          <button @click="showConfirmation = false" class="bg-gray-500 text-white px-4 py-2 rounded">No</button>
+          <button @click="sendInteractionToClient('click', { component: 'sendMessage', page: 'ChatPage' }); fireEmployee()" class="bg-red-500 text-white px-4 py-2 rounded mr-2">Yes</button>
+          <button @click="sendInteractionToClient('click', { component: 'sendMessage', page: 'ChatPage' }); showConfirmation = false" class="bg-gray-500 text-white px-4 py-2 rounded">No</button>
         </div>
       </div>
     </div>
@@ -121,11 +121,11 @@
         <h3 class="text-xl font-bold mb-4">Hire New Employee</h3>
         <input v-model="hireSearchQuery" placeholder="Search players..." class="w-full p-2 border rounded mb-4">
         <ul class="max-h-60 overflow-y-auto">
-          <li v-for="player in filteredPlayers" :key="player.citizenid" class="p-2 hover:bg-opacity-10 cursor-pointer" @click="hirePlayer(player)">
+          <li v-for="player in filteredPlayers" :key="player.citizenid" class="p-2 hover:bg-opacity-10 cursor-pointer" @click="sendInteractionToClient(); hirePlayer(player)">
             {{ player.firstname }} {{ player.lastname }}
           </li>
         </ul>
-        <button @click="closeHireModal" class="mt-4 bg-gray-500 text-white px-4 py-2 rounded">Close</button>
+        <button @click="sendInteractionToClient('click', { component: 'closeButton', page: 'EmployeePage' }); closeHireModal()" class="mt-4 bg-gray-500 text-white px-4 py-2 rounded">Close</button>
       </div>
     </div>
   </div>
@@ -134,6 +134,8 @@
 <script setup>
 import { ref, computed, inject, nextTick, onMounted } from 'vue'
 import { formatDistanceToNow } from 'date-fns'
+import { useSound } from './sounds'
+const { sendInteractionToClient } = useSound()
 
 const currentTheme = inject('theme')
 
