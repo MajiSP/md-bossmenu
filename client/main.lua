@@ -4,7 +4,6 @@ local isUIOpen = false
 CreateThread(function()
     for k, v in pairs (Config.Locations) do 
         if v.job == nil then return end
-        print(v.job)
         local options = {
             {
                 label = 'Open Boss Menu',
@@ -49,7 +48,7 @@ end
 
 local function CloseUI()
     if isUIOpen then
-        TriggerEvent('animations:client:EmoteCommandStart', {'c'}) 
+        TriggerEvent('animations:client:EmoteCommandStart', {'tablet'}) 
         isUIOpen = false
         SetNuiFocus(false, false)
         SendNUIMessage({
@@ -136,22 +135,53 @@ RegisterNUICallback('payBonus', function(data, cb)
     end
      cb('ok')
  end)
+ RegisterNUICallback('openStash', function(data, cb)
+    local job = QBCore.Functions.GetPlayerData().job.name
+    local id = QBCore.Functions.GetPlayerData().citizenid
+    OpenStash(data.type, job, id)
+     cb('ok')
+ end)
 
- RegisterNetEvent('md-bossmenu:client:Result', function(type, biz, val)
-    if type == 'fired' then
-        Notify('You Have Been Fired From ' .. biz .. '!', 'error')
-    elseif type == 'paid' then 
-        Notify('You Have Recieved A Bonus of $' .. val .. ' From ' .. biz .. '!', 'success')
+RegisterNetEvent('updateStashLogs')
+AddEventHandler('updateStashLogs', function(logs)
+    print(logs)
+    SendNUIMessage({
+        action = "updateStashLogs",
+        logs = logs
+    })
+end)
+
+RegisterNetEvent('QBCore:Client:OnJobUpdate')
+AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
+    local Player = QBCore.Functions.GetPlayerData()
+    if JobInfo.onduty ~= Player.job.onduty then
+        TriggerServerEvent('md-bossmenu:server:UpdateDutyStatus', JobInfo.onduty)
+        SendNUIMessage({
+            action = "updateDutyStatus",
+            employeeId = Player.citizenid,
+            onduty = JobInfo.onduty
+        })
     end
 end)
 
-RegisterNetEvent('updateStashLogs')
-AddEventHandler('updateStashLogs', function(log)
-    SendNUIMessage({
-        action = "updateStashLogs",
-        log = log
-    })
-end)
+RegisterNUICallback('captureScreenshot', function(hook, cb)
+    local mediatable = {}
+    local media = lib.callback.await('md-bossmenu:server:uploadimage')
+    local linked = ''
+    exports['screenshot-basic']:requestScreenshotUpload('https://api.fivemerr.com/v1/media/images', 'file', {
+        headers = {
+            Authorization = media
+        },
+        encoding = 'jpg'
+    }, function(data)
+        local resp = json.decode(data)
+        local link = (resp and resp.url) or 'invalid_url'
+        table.insert(mediatable, link)
+        linked = resp.url
+    end)
+     cb('ok', linked)
+ end)
+
 
 RegisterNUICallback('sendChatMessage', function(data, cb)
     TriggerServerEvent('md-bossmenu:server:SendChatMessage', data)
@@ -178,17 +208,3 @@ AddEventHandler('md-bossmenu:client:ReceiveChatHistory', function(messages)
         messages = messages
     })
 end)
-
-RegisterNetEvent('QBCore:Client:OnJobUpdate')
-AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
-    local Player = QBCore.Functions.GetPlayerData()
-    if JobInfo.onduty ~= Player.job.onduty then
-        TriggerServerEvent('md-bossmenu:server:UpdateDutyStatus', JobInfo.onduty)
-        SendNUIMessage({
-            action = "updateDutyStatus",
-            employeeId = Player.citizenid,
-            onduty = JobInfo.onduty
-        })
-    end
-end)
-

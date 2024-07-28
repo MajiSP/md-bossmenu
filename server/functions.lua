@@ -1,7 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local notify = Config.Notify -- qb or ox
 local logs = true 
-local logapi = GetConvar("fivemerrLogs", "")
+local logapi = '9ac512c055e004d7e429139de6d2d422'
 local endpoint = 'https://api.fivemerr.com/v1/logs'
 local headers = {
             ['Authorization'] = logapi,
@@ -21,7 +21,7 @@ else
 end
 end)
 
-function Log(message, logType)
+function Log(message, type)
 if logs == false then return end	
     local buffer = {
         level = "info",
@@ -55,3 +55,30 @@ function Notifys(text, type)
         print"dude, it literally tells you what to put in the config"    
     end    
 end    
+
+function GetName(player)
+    local Player = player
+    local name = Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname
+    return name
+ end
+
+ function GetOfflineName(table)
+    local name = json.decode(table)
+    return name.firstname .. ' ' .. name.lastname
+ end
+ 
+ function GetJob(Player)
+    return Player.PlayerData.job.name
+ end
+
+ function IsBoss(Player)
+    if Player.PlayerData.job.isboss then
+        return true
+    else
+        return false
+    end
+end
+
+function GetID(Player)
+    return Player.PlayerData.citizenid
+end
