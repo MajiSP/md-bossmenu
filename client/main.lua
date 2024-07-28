@@ -47,11 +47,7 @@ local function OpenUI()
         isUIOpen = true
         SetNuiFocus(true, true)
         TriggerServerEvent('bossmenu:server:GetEmployees')
-<<<<<<< HEAD
-        setCurrentUserUser()
-=======
         setCurrentUser()
->>>>>>> cc1b788e31c472e750c695497377997fe9d55078
         SendNUIMessage({
             action = "openUI",
             isBoss = Player.job.isboss,
