@@ -33,6 +33,7 @@
           <h1 class="text-3xl font-bold px-4 mb-4">Boss Menu</h1>
           <div :class="['flex-grow pl-4 pr-4', { 'overflow-y-auto': activePage !== 'Home', 'overflow-hidden': activePage === 'Home' }]">
             <HomePage v-if="activePage === 'Home'" :isBoss="isBoss" :employees="employees" />
+            <BillingPage v-if="activePage === 'Billing'" />
             <StatisticsPage v-if="activePage === 'Statistics' && isBoss" />
             <EmployeesPage v-if="activePage === 'Employees' && isBoss" class="h-full" />
             <BonusesPage v-if="activePage === 'Bonuses' && isBoss" />
@@ -54,6 +55,7 @@ import SettingsPage from './SettingsPage.vue'
 import HomePage from './HomePage.vue'
 import StashesPage from './StashesPage.vue'
 import ChatPage from './ChatPage.vue'
+import BillingPage from './BillingPage.vue'
 
 const isExpanded = ref(false)
 const theme = ref('dark-theme')
@@ -67,6 +69,7 @@ const forceRender = ref(0)
 const menuItems = [
   { icon: 'home', name: 'Home', bossOnly: false },
   { icon: 'users', name: 'Employees', bossOnly: true },
+  { icon: 'file-invoice-dollar', name: 'Billing', bossOnly: false },
   { icon: 'chart-bar', name: 'Statistics', bossOnly: true },
   { icon: 'gift', name: 'Bonuses', bossOnly: true },
   { icon: 'box', name: 'Stashes', bossOnly: false },

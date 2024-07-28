@@ -67,6 +67,26 @@ local function GenerateStashLogs(src, accessedStashType)
     
     return StashLogs
 end
+
+RegisterNetEvent('md-bossmenu:server:SendBill')
+AddEventHandler('md-bossmenu:server:SendBill', function(playerId, amount, reason)
+    local src = source
+    local biller = QBCore.Functions.GetPlayer(src)
+    local billed = QBCore.Functions.GetPlayer(tonumber(playerId))
+
+    if biller and billed then
+        TriggerClientEvent('qb-phone:client:addNewInvoice', billed.PlayerData.source, {
+            sender = biller.PlayerData.charinfo.firstname .. ' ' .. biller.PlayerData.charinfo.lastname,
+            amount = amount,
+            reason = reason,
+            senderCitizenId = biller.PlayerData.citizenid
+        })
+        TriggerClientEvent('QBCore:Notify', src, 'Invoice sent successfully', 'success')
+    else
+        TriggerClientEvent('QBCore:Notify', src, 'Player not found', 'error')
+    end
+end)
+
 RegisterNetEvent('openStash')
 AddEventHandler('openStash', function(data)
     local src = source

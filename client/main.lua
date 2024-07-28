@@ -146,6 +146,10 @@ RegisterCommand('openbossmenu', function()
     OpenUI()
 end, false)
 
+RegisterNUICallback('sendBill', function(data, cb)
+    TriggerServerEvent('md-bossmenu:server:SendBill', data.playerId, data.amount, data.reason)
+    cb('ok')
+end)
 
 RegisterNUICallback('payBonus', function(data, cb)
     local check, name, amount, account = lib.callback.await('md-bossmenu:server:PayBonus', false, data.amount, data.employeeId)
