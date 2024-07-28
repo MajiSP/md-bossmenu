@@ -1,4 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
+local StashLogs = {}
 
 RegisterNetEvent('bossmenu:server:GetEmployees')
 AddEventHandler('bossmenu:server:GetEmployees', function()
@@ -38,23 +39,10 @@ AddEventHandler('bossmenu:server:GetEmployees', function()
     end
 end)
 
-RegisterNetEvent('openStash')
-AddEventHandler('openStash', function(data)
-    local src = source
-    local stashType = data.type
-    
-    print("Opening " .. stashType .. " stash for player " .. src)
-
-    -- send log
-    local logs = GenerateStashLogs(src, stashType)
-    TriggerClientEvent('updateStashLogs', src, logs)
-end)
-
-function GenerateStashLogs(src, accessedStashType)
+local function GenerateStashLogs(src, accessedStashType)
     local player = QBCore.Functions.GetPlayer(src)
     local playerName = player.PlayerData.charinfo.firstname .. " " .. player.PlayerData.charinfo.lastname
     
-    -- id must be inc.
     table.insert(StashLogs, 1, {
         id = #StashLogs + 1,
         user = playerName,
@@ -62,13 +50,20 @@ function GenerateStashLogs(src, accessedStashType)
         time = os.time()
     })
     
-    -- only 50 logs
     if #StashLogs > 50 then
         table.remove(StashLogs)
     end
     
-    return StashLogs
+    return StashLogs[1]
 end
+
+RegisterNetEvent('openStash')
+AddEventHandler('openStash', function(data)
+    local src = source
+    local stashType = data.type
+    local log = GenerateStashLogs(src, stashType)
+    TriggerClientEvent('updateStashLogs', src, log)
+end)
 
 RegisterNetEvent('hireEmployee')
 AddEventHandler('hireEmployee', function(data)

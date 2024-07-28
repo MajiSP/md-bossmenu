@@ -27,6 +27,7 @@
           <EmployeesPage v-if="activePage === 'Employees' && isBoss" class="h-full" />
           <BonusesPage v-if="activePage === 'Bonuses' && isBoss" />
           <StashesPage v-if="activePage === 'Stashes'" :isBoss="isBoss" />
+          <ChatPage v-if="activePage === 'Chat'" :isBoss="isBoss" />
           <SettingsPage v-if="activePage === 'Settings'" @theme-changed="updateTheme" />
         </div>
       </div>
@@ -42,6 +43,7 @@ import BonusesPage from './BonusesPage.vue'
 import SettingsPage from './SettingsPage.vue'
 import HomePage from './HomePage.vue'
 import StashesPage from './StashesPage.vue'
+import ChatPage from './ChatPage.vue'
 
 const isExpanded = ref(false)
 const theme = ref('dark-theme')
@@ -58,6 +60,7 @@ const menuItems = [
   { icon: 'chart-bar', name: 'Statistics', bossOnly: true },
   { icon: 'gift', name: 'Bonuses', bossOnly: true },
   { icon: 'box', name: 'Stashes', bossOnly: false },
+  { icon: 'comments', name: 'Chat', bossOnly: false },
   { icon: 'cog', name: 'Settings', bossOnly: false }
 ]
 

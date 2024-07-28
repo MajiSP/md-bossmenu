@@ -146,10 +146,10 @@ RegisterNUICallback('payBonus', function(data, cb)
 end)
 
 RegisterNetEvent('updateStashLogs')
-AddEventHandler('updateStashLogs', function(logs)
+AddEventHandler('updateStashLogs', function(log)
     SendNUIMessage({
         action = "updateStashLogs",
-        logs = logs
+        log = log
     })
 end)
 

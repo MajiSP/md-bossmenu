@@ -153,6 +153,8 @@ const hireSearchQuery = ref('')
 const showHireModal = ref(false)
 const players = ref([])
 
+const stashLogs = ref([])
+
 const sortedGrades = computed(() => {
   return [...grades.value].sort((a, b) => a.level - b.level)
 })
@@ -297,6 +299,12 @@ onMounted(() => {
       } else {
         console.error('Failed to hire employee:', event.data.result.error)
       }
+    } else if (event.data.action === "updateStashLogs") {
+      const newLog = event.data.log
+      if (!stashLogs.value) {
+        stashLogs.value = []
+      }
+      stashLogs.value = [newLog, ...stashLogs.value.slice(0, 49)]
     }
   })
 })
