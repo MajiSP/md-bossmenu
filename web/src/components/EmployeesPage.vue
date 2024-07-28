@@ -264,7 +264,18 @@ const confirmFire = (employee) => {
 }
 
 const fireEmployee = () => {
-  showConfirmation.value = false
+  fetch(`https://${GetParentResourceName()}/fireEmployee`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: JSON.stringify({
+      employeeId: employeeToFire.value.id
+    }),
+  }).then(() => {
+    employees.value = employees.value.filter(emp => emp.id !== employeeToFire.value.id)
+    showConfirmation.value = false
+  })
 }
 
 const refreshEmployees = async () => {
