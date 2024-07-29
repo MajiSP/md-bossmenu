@@ -65,8 +65,8 @@
   })
 
   const contributors = [
-  { name: 'Mustache Dom', logo: '/public/img/md.png', github: 'https://github.com/mustachedom', details: 'Backend Developer' },
-  { name: 'Maji', logo: '/public/img/maji.png', github: 'https://github.com/majisp', details: 'Frontend Developer' },
+  { name: 'Mustache Dom', logo: '/img/md.png', github: 'https://github.com/mustachedom', details: 'Backend Developer' },
+  { name: 'Maji', logo: '/img/maji.png', github: 'https://github.com/majisp', details: 'Frontend Developer' },
 ]
   
   const changeTheme = (newTheme) => {

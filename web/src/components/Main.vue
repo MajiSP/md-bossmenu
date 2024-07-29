@@ -25,7 +25,10 @@
             @click="setActivePage(item.name); sendInteractionToClient('click', { component: 'sidebarItem', item: item.name })"
             @mouseenter="sendInteractionToClient('hover', { component: 'sidebarItem', item: item.name })"
           >
-            <font-awesome-icon :icon="item.icon" />
+            <font-awesome-icon 
+              :icon="item.icon" 
+              :class="{'file-invoice-dollar-icon': item.icon === 'file-invoice-dollar'}"
+            />
             <span v-if="isExpanded">{{ item.name }}</span>
           </div>
         </div>
@@ -59,8 +62,8 @@ import BillingPage from './BillingPage.vue'
 
 const isExpanded = ref(false)
 const theme = ref('dark-theme')
-const isUIOpen = ref(false)
-const isBoss = ref(false)
+const isUIOpen = ref(true)
+const isBoss = ref(true)
 
 const activePage = shallowRef('Home')
 
@@ -70,7 +73,7 @@ const menuItems = [
   { icon: 'home', name: 'Home', bossOnly: false },
   { icon: 'users', name: 'Employees', bossOnly: true },
   { icon: 'file-invoice-dollar', name: 'Billing', bossOnly: false },
-  { icon: 'chart-bar', name: 'Statistics', bossOnly: true },
+//  { icon: 'chart-bar', name: 'Statistics', bossOnly: true },
   { icon: 'gift', name: 'Bonuses', bossOnly: true },
   { icon: 'box', name: 'Stashes', bossOnly: false },
   { icon: 'comments', name: 'Chat', bossOnly: false },
