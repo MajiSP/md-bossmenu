@@ -98,35 +98,48 @@ AddEventHandler('openStash', function(data)
     local logs = GenerateStashLogs(src, stashType)
     TriggerClientEvent('updateStashLogs', src, logs[1])
 end)
-RegisterNetEvent('hireEmployee')
-AddEventHandler('hireEmployee', function(data)
+
+RegisterNetEvent('bossmenu:server:HireEmployee')
+AddEventHandler('bossmenu:server:HireEmployee', function(data)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
     local Employee = QBCore.Functions.GetPlayerByCitizenId(data.citizenid)
-    if Employee == nil then 
+    local result = {success = false, error = nil}
+
+    if not IsBoss(Player) then
+        result.error = "You are not authorized to hire employees."
+    elseif Employee and GetName(Employee) == GetName(Player) then
+        result.error = "You can't hire yourself."
+    else
         local job = Player.PlayerData.job
-        local hired = {}
-            hired.name = job.name
-		    hired.label = job.label
-		    hired.payment = QBCore.Shared.Jobs[job.name].grades['0'].payment or 500
-		    hired.onduty = false
-		    hired.isboss = false
-		    hired.grade = {}
-		    hired.grade.name = QBCore.Shared.Jobs[job.name].grades['0'].name
-		    hired.grade.level = 0
-        MySQL.update('UPDATE players SET job = ? WHERE citizenid = ?', { json.encode(hired), data.citizenid })
-        TriggerClientEvent('bossmenu:client:RefreshEmployees', src)
-        TriggerClientEvent('bossmenu:client:RefreshUI', src)
-        return
+        if Employee == nil then
+            local hired = {
+                name = job.name,
+                label = job.label,
+                payment = QBCore.Shared.Jobs[job.name].grades['0'].payment or 500,
+                onduty = false,
+                isboss = false,
+                grade = {
+                    name = QBCore.Shared.Jobs[job.name].grades['0'].name,
+                    level = 0
+                }
+            }
+            MySQL.update('UPDATE players SET job = ? WHERE citizenid = ?', { json.encode(hired), data.citizenid })
+        else
+            Employee.Functions.SetJob(GetJob(Player), '0')
+        end
+        
+        result.success = true
+        Notifys(src, 'You have hired ' .. (Employee and GetName(Employee) or "a new employee") .. '!', 'success')
+        if Employee then
+            TriggerClientEvent('md-bossmenu:client:Result', Employee.PlayerData.source, 'hired', GetJob(Player))
+        end
     end
-    if GetName(Employee) == GetName(Player) then Notifys('You Cant Hire Yourself You Silly Goose', 'error') return end
-    if not IsBoss(Player) then return end
-    local grade = 0
-    Employee.Functions.SetJob(GetJob(Player), '0')
-    Notifys('You Have Hired ' .. GetName(Employee) .. '!', 'success')
-    TriggerClientEvent('md-bossmenu:client:Result', Employee.PlayerData.source, 'hired', GetJob(Player))
-    TriggerClientEvent('bossmenu:client:RefreshEmployees', src)
-    TriggerClientEvent('bossmenu:client:RefreshUI', src)
+
+    TriggerClientEvent('bossmenu:client:HireEmployeeResult', src, result)
+    if result.success then
+        TriggerClientEvent('bossmenu:client:RefreshEmployees', src)
+    end
 end)
 
 RegisterNetEvent('md-bossmenu:server:UpdateDutyStatus')
@@ -144,28 +157,6 @@ AddEventHandler('md-bossmenu:server:UpdateDutyStatus', function(isOnDuty)
             timestamp = os.time()
         })
         Player.Functions.SetPlayerData('job', Player.PlayerData.job)
-    end
-end)
-
-RegisterNetEvent('bossmenu:server:refreshEmployees')
-AddEventHandler('bossmenu:server:refreshEmployees', function(jobName)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    if Player.PlayerData.job.isboss and Player.PlayerData.job.name == jobName then
-        local employees = {}
-        local players = QBCore.Functions.GetQBPlayers()
-        for _, v in pairs(players) do
-            if v.PlayerData.job.name == jobName then
-                table.insert(employees, {
-                    id = v.PlayerData.citizenid,
-                    name = v.PlayerData.charinfo.firstname .. " " .. v.PlayerData.charinfo.lastname,
-                    grade = v.PlayerData.job.grade.name,
-                    gradeLevel = v.PlayerData.job.grade.level,
-                    onDuty = v.PlayerData.job.onduty
-                })
-            end
-        end
-        TriggerClientEvent('bossmenu:client:refreshEmployees', src, employees)
     end
 end)
 
@@ -198,29 +189,61 @@ RegisterNetEvent('md-bossmenu:server:SendChatMessage')
 AddEventHandler('md-bossmenu:server:SendChatMessage', function(message)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    
-    message.job = Player.PlayerData.job.name
-    message.timestamp = os.time()
-    for k, v in pairs (message) do 
-        print(k,v) 
+   
+    if Player then
+        local userImage = MySQL.scalar.await('SELECT userimage FROM players WHERE citizenid = ?', {Player.PlayerData.citizenid})
+        
+        MySQL.insert('INSERT INTO mdbossmenu_messages (sender, content, job, timestamp, userimage) VALUES (?, ?, ?, ?, ?)',
+            {message.sender, message.content, message.job, message.timestamp, userImage},
+            function(id)
+                message.id = id
+                message.userImage = userImage
+                TriggerClientEvent('md-bossmenu:client:ReceiveChatMessage', -1, message)
+            end
+        )
     end
-    MySQL.insert('INSERT INTO mdbossmenu_messages (sender, content, job, timestamp) VALUES (?, ?, ?, ?)',
-        {message.sender, message.content, message.job, message.timestamp},
-        function(id)
-            message.id = id
-            TriggerClientEvent('md-bossmenu:client:ReceiveChatMessage', -1, message)
+end)
+
+RegisterServerEvent('md-bossmenu:server:UpdateUserImage')
+AddEventHandler('md-bossmenu:server:UpdateUserImage', function(imageUrl)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    local defaultImage = "https://cdn.discordapp.com/attachments/1175646486478999613/1268103587083452448/egg.jpg?ex=66ab34ff&is=66a9e37f&hm=e3ccee44799163098c6ff50b65c8a987441660f9fc8dcf1713ad1caec3e7fc94&"
+
+    if Player then
+        if imageUrl == nil or imageUrl == "" then
+            imageUrl = defaultImage
         end
-    )
+
+        MySQL.update('UPDATE players SET userimage = ? WHERE citizenid = ?', {imageUrl, Player.PlayerData.citizenid})
+        MySQL.update('UPDATE mdbossmenu_messages SET userimage = ? WHERE sender = ?',
+            {imageUrl, Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname})
+
+        TriggerClientEvent('md-bossmenu:client:UpdateUserImage', src, imageUrl)
+        TriggerClientEvent('md-bossmenu:client:ImageUpdateResponse', src, {success = true, imageUrl = imageUrl})
+    end
+end)
+
+RegisterServerEvent('md-bossmenu:server:GetUserImage')
+AddEventHandler('md-bossmenu:server:GetUserImage', function(citizenid)
+    local src = source
+    local defaultImage = "https://cdn.discordapp.com/attachments/1175646486478999613/1268103587083452448/egg.jpg?ex=66ab34ff&is=66a9e37f&hm=e3ccee44799163098c6ff50b65c8a987441660f9fc8dcf1713ad1caec3e7fc94&"
+
+    MySQL.single('SELECT userimage FROM players WHERE citizenid = ?', {citizenid}, function(result)
+        local imageUrl = result and result.userimage or defaultImage
+        print("Retrieved image URL for citizenid " .. citizenid .. ": " .. imageUrl)
+        TriggerClientEvent('md-bossmenu:client:ReceiveUserImage', src, imageUrl)
+    end)
 end)
 
 RegisterNetEvent('md-bossmenu:server:GetChatHistory')
-AddEventHandler('md-bossmenu:server:GetChatHistory', function(job)
+AddEventHandler('md-bossmenu:server:GetChatHistory', function()
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    
-    if Player.PlayerData.job.name == job then
-        MySQL.query('SELECT * FROM mdbossmenu_messages WHERE job = ? ORDER BY timestamp DESC LIMIT 100',
-            {job},
+   
+    if Player then
+        MySQL.query('SELECT * FROM mdbossmenu_messages WHERE job = ? ORDER BY timestamp ASC LIMIT 100',
+        {Player.PlayerData.job.name},
             function(results)
                 TriggerClientEvent('md-bossmenu:client:ReceiveChatHistory', src, results)
             end

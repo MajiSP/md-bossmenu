@@ -26,8 +26,9 @@ input[type="range"]::-webkit-slider-thumb { @apply appearance-none w-4 h-4 round
 .employees-container .duty-history { @apply mt-2 text-sm; }
 .home-page { @apply flex-1 py-10 overflow-y-auto overflow-x-auto; }
 .home-page h2 { @apply text-3xl font-bold mb-8 text-center; }
-.chat-container { @apply flex flex-col h-full max-w-full mx-auto p-4; }
-.chat-messages { @apply flex-grow overflow-y-auto p-4 space-y-4; }
+.chat-container { @apply flex flex-col h-full max-w-full mx-auto relative; }
+.chat-messages { @apply flex-grow overflow-y-auto p-4 space-y-4; height: calc(100% - 60px); scrollbar-width: none; ms-overflow-style: none; }
+.chat-messages::-webkit-scrollbar { display: none; }
 .stashes-container { @apply flex flex-col space-y-4 rounded-lg p-4; }
 
 /* Element Styles */
@@ -48,12 +49,12 @@ input[type="range"]::-webkit-slider-thumb { @apply appearance-none w-4 h-4 round
 
 /* Message Styles */
 .message { @apply flex w-full mb-4; animation-duration: 0.5s; animation-fill-mode: both; }
-.message:not(.sent) { animation-name: slideInLeft; }
-.message.sent { animation-name: slideInRight; }
+.message:not(.sent) { @apply justify-end; animation-name: slideInLeft; }
+.message.sent { @apply justify-end; animation-name: slideInRight; }
 .message-content { @apply p-3 rounded-lg max-w-[70%] break-words; }
 .sender { @apply font-bold text-sm; }
 .timestamp { @apply text-xs text-gray-300 mt-1 block; }
-.chat-input { @apply flex items-center p-4 border-t border-gray-200; }
+.chat-input { @apply flex items-center p-4 border-t border-gray-200 absolute bottom-0 left-0 right-0 bg-inherit; z-index: 10; }
 .chat-input input { @apply flex-grow p-2 rounded-l-lg focus:outline-none; }
 .send-button { @apply bg-blue-500 text-white p-2 rounded-r-lg hover:bg-blue-600 transition-colors duration-200; }
 .chat-messages .message:not(.sent) { @apply justify-start; }
@@ -78,10 +79,11 @@ input[type="range"]::-webkit-slider-thumb { @apply appearance-none w-4 h-4 round
 .main-content::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 3px; }
 .main-content::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.5); }
 .main-content h1 { @apply text-3xl font-bold mb-8 text-center; }
+.main-content.chat-page-active { @apply pb-0 overflow-hidden; }
 
 /* Boss Menu */
 .boss-menu-container { @apply flex items-center justify-center h-screen bg-transparent; }
-.boss-menu-content { @apply w-[1152px] h-[648px] bg-opacity-0 backdrop-blur-sm rounded-lg overflow-visible flex; border-radius: 0.5rem; }
+.boss-menu-content { @apply w-[1152px] h-[648px] bg-opacity-0 rounded-lg overflow-visible flex; border-radius: 1rem; background-clip: padding-box; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1); position: relative}
 
 /* Sidebar */
 .sidebar { @apply w-16 transition-all duration-300 ease-in-out; animation: slideIn 0.5s ease-out; border-radius: 0.5rem 0rem 0rem 0.5rem; overflow: hidden; background-color: transparent; }
@@ -98,7 +100,7 @@ input[type="range"]::-webkit-slider-thumb { @apply appearance-none w-4 h-4 round
 .expand-btn:hover svg { @apply transform rotate-180; }
 
 /* Light Theme */
-.light-theme { @apply bg-white text-gray-800; }
+.light-theme { @apply bg-transparent text-gray-800; }
 .light-theme .input-field { @apply bg-white border border-gray-300 text-gray-700 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50; }
 .light-theme .send-bill-button { @apply bg-blue-500 text-white hover:bg-blue-600; }
 .light-theme .billing-container { @apply bg-white text-gray-800; }
@@ -128,9 +130,15 @@ input[type="range"]::-webkit-slider-thumb { @apply appearance-none w-4 h-4 round
 .light-theme .setting-button.active { @apply bg-blue-500 text-white; }
 .light-theme input[type="range"] { @apply bg-gray-300; }
 .light-theme input[type="range"]::-webkit-slider-thumb { @apply bg-blue-500; }
+.light-theme .input-field {
+  @apply bg-white border border-gray-300 text-gray-700 focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50;
+}
+.light-theme .setting-button {
+  @apply bg-blue-500 text-white hover:bg-blue-600;
+}
 
 /* Dark Theme */
-.dark-theme { @apply bg-gray-900 text-white; }
+.dark-theme { @apply bg-transparent text-white; }
 .dark-theme .input-field { @apply bg-gray-700 border border-gray-600 text-white focus:border-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50; }
 .dark-theme .send-bill-button { @apply bg-blue-600 text-white hover:bg-blue-700; }
 .dark-theme .billing-container { @apply bg-gray-800 text-white; }
@@ -157,6 +165,11 @@ input[type="range"]::-webkit-slider-thumb { @apply appearance-none w-4 h-4 round
 .dark-theme .setting-button.active { @apply bg-blue-600 text-white; }
 .dark-theme input[type="range"] { @apply bg-gray-700; }
 .dark-theme input[type="range"]::-webkit-slider-thumb { @apply bg-blue-400; }
-
+.dark-theme .input-field {
+  @apply bg-gray-700 border border-gray-600 text-white focus:border-blue-400 focus:ring focus:ring-blue-300 focus:ring-opacity-50;
+}
+.dark-theme .setting-button {
+  @apply bg-blue-600 text-white hover:bg-blue-700;
+}
 /* Misc */
 .currency-icon { animation: transferAnimation 2s ease-in-out forwards; }

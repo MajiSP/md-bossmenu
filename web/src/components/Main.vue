@@ -4,7 +4,7 @@
         <button 
           @click="closeUI(); sendInteractionToClient('click', { component: 'closeButton' })" 
           @mouseenter="sendInteractionToClient('hover', { component: 'closeButton' })" 
-          class="absolute top-2 right-2 p-2 rounded-full transition-colors duration-200" 
+          class="absolute top-2 right-2 p-2 rounded-full transition-colors duration-200 z-10" 
           :class="theme === 'light-theme' ? 'text-gray-600 hover:bg-gray-200' : 'text-gray-300 hover:bg-gray-700'"
         >
           <font-awesome-icon icon="times" class="w-5 h-5" />
@@ -32,7 +32,7 @@
             <span v-if="isExpanded">{{ item.name }}</span>
           </div>
         </div>
-        <div class="main-content flex flex-col">
+        <div :class="['main-content flex flex-col', { 'chat-page-active': activePage === 'Chat' }]">
           <h1 class="text-3xl font-bold px-4 mb-4">Boss Menu</h1>
           <div :class="['flex-grow pl-4 pr-4', { 'overflow-y-auto': activePage !== 'Home', 'overflow-hidden': activePage === 'Home' }]">
             <HomePage v-if="activePage === 'Home'" :isBoss="isBoss" :employees="employees" />
@@ -41,7 +41,7 @@
             <EmployeesPage v-if="activePage === 'Employees' && isBoss" class="h-full" />
             <BonusesPage v-if="activePage === 'Bonuses' && isBoss" />
             <StashesPage v-if="activePage === 'Stashes'" :isBoss="isBoss" />
-            <ChatPage v-if="activePage === 'Chat'" :isBoss="isBoss" />
+            <ChatPage v-if="activePage === 'Chat'" :isBoss="isBoss" :chatHistoryLoaded="chatHistoryLoaded" />
             <SettingsPage v-if="activePage === 'Settings'" @theme-changed="updateTheme" />
           </div>
         </div>
@@ -62,18 +62,15 @@ import BillingPage from './BillingPage.vue'
 
 const isExpanded = ref(false)
 const theme = ref('dark-theme')
-const isUIOpen = ref(true)
-const isBoss = ref(true)
-
+const isUIOpen = ref(false)
+const isBoss = ref(false)
 const activePage = shallowRef('Home')
-
 const forceRender = ref(0)
 
 const menuItems = [
   { icon: 'home', name: 'Home', bossOnly: false },
   { icon: 'users', name: 'Employees', bossOnly: true },
   { icon: 'file-invoice-dollar', name: 'Billing', bossOnly: false },
-//  { icon: 'chart-bar', name: 'Statistics', bossOnly: true },
   { icon: 'gift', name: 'Bonuses', bossOnly: true },
   { icon: 'box', name: 'Stashes', bossOnly: false },
   { icon: 'comments', name: 'Chat', bossOnly: false },
@@ -88,38 +85,51 @@ const toggleSidebar = () => {
   isExpanded.value = !isExpanded.value
 }
 
+const chatHistoryLoaded = ref(false)
+
 const setActivePage = (pageName) => {
   activePage.value = pageName
   if (pageName === 'Employees') {
-    fetch(`https://${GetParentResourceName()}/refreshEmployees`, {
+    fetch(`https://${GetParentResourceName()}/SetActivePage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})
     })
+  } else if (pageName === 'Chat' && !chatHistoryLoaded.value) {
+    loadChatHistory()
   }
 }
+
+const loadChatHistory = () => {
+  fetch(`https://${GetParentResourceName()}/getChatHistory`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({})
+  })
+  .then(() => {
+    chatHistoryLoaded.value = true
+  })
+}
+
 
 const updateTheme = (newTheme) => {
   theme.value = newTheme
 }
 
-const sendInteractionToClient = (interactionType, data) => {
-  fetch(`https://${GetParentResourceName()}/PlaySound`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: interactionType, data: data })
-  })
+const sendInteractionToClient = () => {
+  //fetch(`https://${GetParentResourceName()}/PlaySound`, {
+    //method: 'POST',
+    //headers: { 'Content-Type': 'application/json' },
+    //body: JSON.stringify({ type: interactionType, data: data })
+  //})
 }
 
 const closeUI = () => {
+  isUIOpen.value = false
   fetch(`https://${GetParentResourceName()}/closeUI`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: JSON.stringify({}),
-  }).then(() => {
-    isUIOpen.value = false
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({})
   })
 }
 
@@ -137,10 +147,10 @@ window.addEventListener('message', (event) => {
   if (event.data.action === 'openUI') {
     isUIOpen.value = true
     isBoss.value = event.data.isBoss
-    activePage.value = isBoss.value ? 'Home' : 'Home'
+    activePage.value = 'Home'
     if (Array.isArray(event.data.menuItems) && event.data.menuItems.length > 0) {
       menuItems.value = event.data.menuItems.map((item, index) => ({
-        ...menuItems.value[index],
+        ...menuItems[index],
         icon: item.icon,
         bossOnly: item.bossOnly
       }))
@@ -149,6 +159,7 @@ window.addEventListener('message', (event) => {
     employees.value = event.data.employees
     grades.value = event.data.grades
     salaries.value = event.data.salaries
+    activePage.value = 'Employees'
   }
 })
 
@@ -156,5 +167,6 @@ provide('employees', employees)
 provide('grades', grades)
 provide('salaries', salaries)
 provide('theme', theme)
-
+provide('isUIOpen', isUIOpen)
+provide('closeUI', closeUI)
 </script>

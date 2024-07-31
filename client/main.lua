@@ -31,41 +31,38 @@ RegisterNetEvent('md-bossmenu:client:Result', function(type, biz, val)
     end
 end)
 
-local function setCurrentUser()
-    local Player = QBCore.Functions.GetPlayerData()
+local function setCurrentUser(Player)
+    local username = Player.charinfo.firstname .. ' ' .. Player.charinfo.lastname
     SendNUIMessage({
         action = "setCurrentUser",
-        username = Player.charinfo.firstname..''.. Player.charinfo.lastname,
+        username = username,
         job = Player.job.name,
     })
 end
 
 local function OpenUI()
     local Player = QBCore.Functions.GetPlayerData()
+    local username = Player.charinfo.firstname .. ' ' .. Player.charinfo.lastname
     if not isUIOpen then
-        TriggerEvent('animations:client:EmoteCommandStart', {'tablet'}) 
-        isUIOpen = true
-        SetNuiFocus(true, true)
-        TriggerServerEvent('bossmenu:server:GetEmployees')
-        setCurrentUser()
+        Wait(100)
         SendNUIMessage({
             action = "openUI",
             isBoss = Player.job.isboss,
-            menuItems = Config.MenuItems
+            menuItems = Config.MenuItems,
+            username = username,
+            job = Player.job.name
         })
+        SendNUIMessage({
+            action = "setCurrentUser",
+            username = username,
+            job = Player.job.name,
+        })
+        TriggerServerEvent('md-bossmenu:server:GetChatHistory')
+        SetNuiFocus(true, true)
     end
 end
 
-local function setCurrentUser()
-    local Player = QBCore.Functions.GetPlayerData()
-    SendNUIMessage({
-        action = "setCurrentUser",
-        username = Player.charinfo.firstname..''.. Player.charinfo.lastname,
-        job = Player.job.name,
-    })
-end
-
-local function CloseUI()
+function CloseUI()
     if isUIOpen then
         TriggerEvent('animations:client:EmoteCommandStart', {'tablet'}) 
         isUIOpen = false
@@ -73,16 +70,23 @@ local function CloseUI()
         SendNUIMessage({
             action = "closeUI"
         })
+        SendNUIMessage({
+            action = "setCurrentUser",
+            username = '',
+            job = '',
+        })
     end
 end
+
+RegisterNUICallback('closeUI', function(data, cb)
+    CloseUI()
+    cb('ok')
+end)
 
 -- event is only used for hiring.
 RegisterNetEvent('bossmenu:client:RefreshUI')
 AddEventHandler('bossmenu:client:RefreshUI', function()
-    CloseUI()
-    Wait(100)
-    OpenUI()
-    Wait(100)
+    TriggerServerEvent('bossmenu:server:GetEmployees')
     SendNUIMessage({
         action = "setActivePage",
         page = "Employees"
@@ -103,11 +107,6 @@ RegisterNetEvent('qb-bossmenu:client:OpenMenu', function() -- backwards compatib
     OpenUI()
 end)
 
-RegisterNUICallback('closeUI', function(data, cb)
-    CloseUI()
-    cb('ok')
-end)
-
 RegisterNUICallback('getPlayers', function(data, cb)
     TriggerServerEvent('getPlayers')
     cb('ok')
@@ -122,17 +121,48 @@ AddEventHandler('returnPlayers', function(players)
 end)
 
 RegisterNUICallback('hireEmployee', function(data, cb)
-    TriggerServerEvent('hireEmployee', data)
+    TriggerServerEvent('bossmenu:server:HireEmployee', data)
     cb('ok')
 end)
 
-RegisterNetEvent('hireEmployeeResult')
-AddEventHandler('hireEmployeeResult', function(result)
+RegisterNetEvent('bossmenu:client:HireEmployeeResult')
+AddEventHandler('bossmenu:client:HireEmployeeResult', function(result)
+    if result.success then
+        TriggerServerEvent('bossmenu:server:GetEmployees')
+    end
     SendNUIMessage({
         action = "hireResult",
         result = result
     })
 end)
+
+RegisterNUICallback('getUserImage', function(data, cb)
+    local Player = QBCore.Functions.GetPlayerData()
+    TriggerServerEvent('md-bossmenu:server:GetUserImage', Player.citizenid)
+    
+    local imageUrl = nil
+    CreateThread(function()
+        while imageUrl == nil do
+            Wait(0)
+        end
+        cb({ imageUrl = imageUrl })
+    end)
+
+    RegisterNetEvent('md-bossmenu:client:ReceiveUserImage')
+    AddEventHandler('md-bossmenu:client:ReceiveUserImage', function(url)
+        imageUrl = url
+    end)
+end)
+
+RegisterNetEvent('md-bossmenu:client:ReceiveUserImage')
+AddEventHandler('md-bossmenu:client:ReceiveUserImage', function(imageUrl)
+    print("Received image URL on client: " .. imageUrl)
+    SendNUIMessage({
+        action = "setUserImage",
+        imageUrl = imageUrl
+    })
+end)
+
 
 RegisterNUICallback('fireEmployee', function(data, cb)
     local check, name =  lib.callback.await('md-bossmenu:server:fire', false, data.employeeId)
@@ -167,7 +197,6 @@ RegisterNUICallback('payBonus', function(data, cb)
 
 RegisterNetEvent('updateStashLogs')
 AddEventHandler('updateStashLogs', function(logs)
-    print(logs)
     SendNUIMessage({
         action = "updateStashLogs",
         logs = logs
@@ -207,7 +236,14 @@ RegisterNUICallback('captureScreenshot', function(hook, cb)
 
 
 RegisterNUICallback('sendChatMessage', function(data, cb)
-    TriggerServerEvent('md-bossmenu:server:SendChatMessage', data)
+    local Player = QBCore.Functions.GetPlayerData()
+    local message = {
+        content = data.content,
+        sender = Player.charinfo.firstname .. ' ' .. Player.charinfo.lastname,
+        job = Player.job.name,
+        timestamp = data.timestamp
+    }
+    TriggerServerEvent('md-bossmenu:server:SendChatMessage', message)
     cb('ok')
 end)
 
@@ -219,8 +255,13 @@ AddEventHandler('md-bossmenu:client:ReceiveChatMessage', function(message)
     })
 end)
 
+RegisterNUICallback('updateUserImage', function(data, cb)
+    TriggerServerEvent('md-bossmenu:server:UpdateUserImage', data.imageUrl)
+    cb({success = true})
+end)
+
 RegisterNUICallback('getChatHistory', function(data, cb)
-    TriggerServerEvent('md-bossmenu:server:GetChatHistory', data.job)
+    TriggerServerEvent('md-bossmenu:server:GetChatHistory')
     cb('ok')
 end)
 

@@ -139,7 +139,6 @@ const { sendInteractionToClient } = useSound()
 
 const currentTheme = inject('theme')
 
-const employees = inject('employees')
 const grades = inject('grades')
 const salaries = inject('salaries')
 
@@ -154,6 +153,8 @@ const historyHeight = ref(0)
 const hireSearchQuery = ref('')
 const showHireModal = ref(false)
 const players = ref([])
+
+const employees = inject('employees', ref([]))
 
 const stashLogs = ref([])
 
@@ -192,6 +193,8 @@ const hirePlayer = async (player) => {
 }
 
 const filteredEmployees = computed(() => {
+  if (!employees.value) return []
+  
   return employees.value
     .filter(emp => emp.name.toLowerCase().includes(searchQuery.value.toLowerCase()))
     .sort((a, b) => {
@@ -280,25 +283,6 @@ const fireEmployee = () => {
   })
 }
 
-const refreshEmployees = async () => {
-  try {
-    const response = await fetch(`https://${GetParentResourceName()}/refreshEmployees`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({})
-    })
-    const text = await response.text()
-    if (text) {
-      const updatedEmployees = JSON.parse(text)
-      employees.value = updatedEmployees
-    } else {
-    }
-  } catch (error) {
-    console.error('Error refreshing employees:', error)
-  }
-}
-
-
 onMounted(() => {
   window.addEventListener('message', (event) => {
     if (event.data.action === "setPlayers") {
@@ -307,11 +291,12 @@ onMounted(() => {
       updateDutyStatus(event.data.employeeId, event.data.onduty)
     } else if (event.data.action === "hireResult") {
       if (event.data.result.success) {
-        refreshEmployees()
         closeHireModal()
       } else {
         console.error('Failed to hire employee:', event.data.result.error)
       }
+    } else if (event.data.action === "refreshEmployees") {
+      employees.value = event.data.employees
     } else if (event.data.action === "updateStashLogs") {
       const newLog = event.data.log
       if (!stashLogs.value) {
