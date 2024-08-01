@@ -42,7 +42,7 @@
             <BonusesPage v-if="activePage === 'Bonuses' && isBoss" />
             <StashesPage v-if="activePage === 'Stashes'" :isBoss="isBoss" />
             <ChatPage v-if="activePage === 'Chat'" :isBoss="isBoss" :chatHistoryLoaded="chatHistoryLoaded" />
-            <SettingsPage v-if="activePage === 'Settings'" @theme-changed="updateTheme" />
+            <SettingsPage v-if="activePage === 'Settings'" @theme-changed="updateTheme" :activePage="activePage" />
           </div>
         </div>
       </div>
@@ -100,6 +100,21 @@ const setActivePage = (pageName) => {
   }
 }
 
+const fetchUserImage = () => {
+  fetch(`https://${GetParentResourceName()}/getUserImage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({})
+  })
+  .then(response => response.json())
+  .then(data => {
+    userState.setUserImage(data.imageUrl)
+  })
+  .catch(error => {
+    console.error('Error fetching user image:', error)
+  })
+}
+
 const loadChatHistory = () => {
   fetch(`https://${GetParentResourceName()}/getChatHistory`, {
     method: 'POST',
@@ -148,6 +163,7 @@ window.addEventListener('message', (event) => {
     isUIOpen.value = true
     isBoss.value = event.data.isBoss
     activePage.value = 'Home'
+    fetchUserImage()
     if (Array.isArray(event.data.menuItems) && event.data.menuItems.length > 0) {
       menuItems.value = event.data.menuItems.map((item, index) => ({
         ...menuItems[index],

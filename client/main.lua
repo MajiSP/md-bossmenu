@@ -65,8 +65,6 @@ end
 function CloseUI()
     if isUIOpen then
         TriggerEvent('animations:client:EmoteCommandStart', {'tablet'}) 
-        isUIOpen = false
-        SetNuiFocus(false, false)
         SendNUIMessage({
             action = "closeUI"
         })
@@ -80,6 +78,8 @@ end
 
 RegisterNUICallback('closeUI', function(data, cb)
     CloseUI()
+    isUIOpen = false
+    SetNuiFocus(false, false)
     cb('ok')
 end)
 
@@ -147,16 +147,15 @@ RegisterNUICallback('getUserImage', function(data, cb)
         end
         cb({ imageUrl = imageUrl })
     end)
-
-    RegisterNetEvent('md-bossmenu:client:ReceiveUserImage')
-    AddEventHandler('md-bossmenu:client:ReceiveUserImage', function(url)
-        imageUrl = url
-    end)
 end)
+--    RegisterNetEvent('md-bossmenu:client:ReceiveUserImage')
+--    AddEventHandler('md-bossmenu:client:ReceiveUserImage', function(url)
+--        imageUrl = url
+--    end)
+--end)
 
 RegisterNetEvent('md-bossmenu:client:ReceiveUserImage')
 AddEventHandler('md-bossmenu:client:ReceiveUserImage', function(imageUrl)
-    print("Received image URL on client: " .. imageUrl)
     SendNUIMessage({
         action = "setUserImage",
         imageUrl = imageUrl

@@ -64,12 +64,17 @@
 </template>
 
 <script setup>
-import { ref, inject, onMounted } from 'vue'
-import { useSound } from './sounds'
-const { sendInteractionToClient } = useSound()
+import { ref, inject, onMounted, watch, computed } from 'vue'
 import { userState } from '../userState'
-
+//import { useSound } from './sounds'
+//const { sendInteractionToClient } = useSound()
 const newImageUrl = ref('')
+
+const props = defineProps({
+  activePage: String
+})
+
+const isSettingsActive = computed(() => props.activePage === 'Settings')
 
 const updateUserImage = () => {
 if (newImageUrl.value) {
@@ -85,7 +90,6 @@ if (newImageUrl.value) {
   })
   .then(response => response.json())
   .then(data => {
-    console.log('Image update response:', data);
     userState.setUserImage(newImageUrl.value);
     newImageUrl.value = '';
   })
@@ -95,6 +99,21 @@ if (newImageUrl.value) {
 }
 };
 
+const fetchUserImage = () => {
+  fetch(`https://${GetParentResourceName()}/getUserImage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({})
+  })
+  .then(response => response.json())
+  .then(data => {
+    userState.setUserImage(data.imageUrl)
+  })
+  .catch(error => {
+    console.error('Error fetching user image:', error)
+  })
+}
+
 const currentTheme = inject('theme')
 
 const settings = ref({
@@ -102,25 +121,21 @@ emailNotifications: true,
 language: 'en'
 })
 
+
+
 const contributors = [
-{ name: 'Mustache Dom', logo: '/html/img/md.png', github: 'https://github.com/mustachedom', details: 'Backend Developer' },
-{ name: 'Maji', logo: '/html/img/maji.png', github: 'https://github.com/majisp', details: 'Frontend Developer' },
+{ name: 'Mustache Dom', logo: './img/md.png', github: 'https://github.com/mustachedom', details: 'Backend Developer' },
+{ name: 'Maji', logo: './img/maji.png', github: 'https://github.com/majisp', details: 'Frontend Developer' },
+{ name: 'Alex Skies', logo: './img/alex.png', github: 'https://github.com/alexskiesrp', details: 'Graphic Designer' },
 ]
 
 const changeTheme = (newTheme) => {
 currentTheme.value = newTheme
 }
 
-onMounted(() => {
-fetch(`https://${GetParentResourceName()}/getUserImage`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({})
-})
-.then(response => response.json())
-.then(data => {
-  console.log("Received image URL in Vue:", data.imageUrl)
-  userState.setUserImage(data.imageUrl)
-})
-})
+watch(isSettingsActive, (newValue) => {
+  if (newValue) {
+    fetchUserImage()
+  }
+}, { immediate: true })
 </script>

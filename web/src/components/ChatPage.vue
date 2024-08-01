@@ -141,6 +141,15 @@ watch(() => messages.value, () => {
 }, { deep: true })
 
 onMounted(() => {
+  fetch(`https://${GetParentResourceName()}/getUserImage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({})
+  })
+  .then(response => response.json())
+  .then(data => {
+    userState.setUserImage(data.imageUrl)
+  })
   const eventHandlers = {
     updateChat: (data) => {
       if (data.message && !messages.value.some(m => m.id === data.message.id)) {
@@ -159,6 +168,9 @@ onMounted(() => {
       userState.setChatHistory(data)
       messages.value = userState.chatHistory
       scrollToBottom()
+    },
+    setUserImage: (data) => {
+      userState.setUserImage(data.imageUrl)
     }
   }
 
