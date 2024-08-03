@@ -56,14 +56,31 @@ function Notifys(text, type)
     end    
 end    
 
+function Notifys2(source, text, type)
+    if notify == 'qb' then
+        TriggerClientEvent("QBCore:Notify", source, text, type)
+    elseif notify == 'ox' then
+        lib.notify(source, { title = text, type = type})
+    elseif notify == 'okok' then
+        TriggerClientEvent('okokNotify:Alert', source, '', text, 4000, type, false)
+    else
+        print"dude, it literally tells you what to put in the config"    
+    end    
+end    
+
 function GetName(player)
-    local Player = player
-    local name = Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname
+    
+    local name = player.PlayerData.charinfo.firstname .. ' ' .. player.PlayerData.charinfo.lastname
     return name
  end
 
  function GetOfflineName(table)
     local name = json.decode(table)
+    if not name then 
+        local named = MySQL.scalar.await('SELECT charinfo FROM players WHERE citizenid = ?', {table})
+        local string = json.decode(named)
+        return string.firstname .. ' ' .. string.lastname
+    end
     return name.firstname .. ' ' .. name.lastname
  end
  
@@ -81,4 +98,41 @@ end
 
 function GetID(Player)
     return Player.PlayerData.citizenid
+end
+
+function AddBillMoney(name, amount, reason)
+    if GetResourceState('renewed-banking') == 'started' then
+        exports['Renewed-Banking']:addAccountMoney(name, amount)
+    elseif GetResourceState('okokBanking') == 'started' then
+        exports['okokBanking']:AddMoney(name, amount)
+    else
+        exports['qb-banking']:AddMoney(name, amount , reason)
+    end
+end
+
+function PayoutBonuses(name, amount, reason)
+    if GetResourceState('renewed-banking') == 'started' then
+        if exports['Renewed-Banking']:removeAccountMoney(name, amount) then
+            return true
+        end
+    elseif GetResourceState('okokBanking') == 'started' then
+       if exports['okokBanking']:RemoveMoney(name, amount) then
+            return true
+       end
+    else
+        if exports['qb-banking']:RemoveMoney(name, amount , reason) then 
+            return true
+        end
+    end
+end
+
+function FireEmployee(Employee, job)
+    if GetResourceState('randol_multijob') == 'started' then 
+        TriggerServerEvent('qb-bossmenu:server:FireEmployee', Employee)
+        return true
+    elseif GetResourceState('ps-multijob') == 'started' then
+        exports["ps-multijob"]:RemoveJob(Employee, job)
+        return true
+    end
+    return true
 end

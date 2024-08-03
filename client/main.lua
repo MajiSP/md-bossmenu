@@ -28,6 +28,8 @@ RegisterNetEvent('md-bossmenu:client:Result', function(type, biz, val)
         Notify('You Have Recieved A Bonus of $' .. val .. ' From ' .. biz .. '!', 'success')
     elseif type == 'hired' then
         Notify('You Have Been Hired At ' .. biz .. '!', 'success')
+    elseif type == 'billed' then
+        Notify('You Have Paid Your Bill Of $' .. val .. ' To ' .. biz .. '!', 'success' )
     end
 end)
 
@@ -42,6 +44,7 @@ end
 
 local function OpenUI()
     local Player = QBCore.Functions.GetPlayerData()
+    if Player.metadata.isdead or Player.metadata.inlaststand then return end
     local username = Player.charinfo.firstname .. ' ' .. Player.charinfo.lastname
     if not isUIOpen then
         Wait(100)
@@ -58,11 +61,12 @@ local function OpenUI()
             job = Player.job.name,
         })
         TriggerServerEvent('md-bossmenu:server:GetChatHistory')
+        TriggerServerEvent('bossmenu:server:GetEmployees')
         SetNuiFocus(true, true)
     end
 end
 
-function CloseUI()
+local function CloseUI()
     if isUIOpen then
         TriggerEvent('animations:client:EmoteCommandStart', {'tablet'}) 
         SendNUIMessage({
@@ -95,11 +99,12 @@ end)
 
 RegisterNetEvent('bossmenu:client:RefreshEmployees')
 AddEventHandler('bossmenu:client:RefreshEmployees', function(employees, grades, salaries)
+ 
     SendNUIMessage({
         action = "refreshEmployees",
         employees = employees,
         grades = grades,
-        salaries = salaries
+        salaries = salaries,
     })
 end)
 
@@ -122,6 +127,8 @@ end)
 
 RegisterNUICallback('hireEmployee', function(data, cb)
     TriggerServerEvent('bossmenu:server:HireEmployee', data)
+    Wait(200)
+    TriggerServerEvent('bossmenu:server:GetEmployees')
     cb('ok')
 end)
 
@@ -176,8 +183,23 @@ RegisterCommand('openbossmenu', function()
 end, false)
 
 RegisterNUICallback('sendBill', function(data, cb)
-    TriggerServerEvent('md-bossmenu:server:SendBill', data.playerId, data.amount, data.reason)
+    local check, name = lib.callback.await('md-bossmenu:server:sendBills', false, data)
+    if check then 
+        Notify(name .. ' Has Paid Their Bill!', 'success')
+        local logs = lib.callback.await('md-bossmenu:server:getBillingLogs', false)
+        SendNUIMessage({
+            action = 'updateBillingLogs',
+            logs = logs
+        })
+    else 
+        Notify(name .. ' Is A Broke Fuck That Could Not Cover Their Bill', 'error') 
+    end
     cb('ok')
+end)
+
+RegisterNUICallback('getBillingLogs', function(data, cb)
+    local logs = lib.callback.await('md-bossmenu:server:getBillingLogs', false)
+    cb(logs)
 end)
 
 RegisterNUICallback('payBonus', function(data, cb)
@@ -187,13 +209,23 @@ RegisterNUICallback('payBonus', function(data, cb)
     end
      cb('ok')
  end)
+
  RegisterNUICallback('openStash', function(data, cb)
     local job = QBCore.Functions.GetPlayerData().job.name
     local id = QBCore.Functions.GetPlayerData().citizenid
-    OpenStash(data.type, job, id)
+    if Config.StashAnywhere then 
+        OpenStash(data.type, job, id)
+    else
+        local check = lib.callback.await('md-bossmenu:server:stashcheck')
+        if check then 
+            OpenStash(data.type, job, id)
+        else
+            Notify('Your Tablet Doesnt Have Pockets Idiot', 'error')
+        end
+    end
      cb('ok')
  end)
-
+ 
 RegisterNetEvent('updateStashLogs')
 AddEventHandler('updateStashLogs', function(logs)
     SendNUIMessage({
@@ -215,24 +247,40 @@ AddEventHandler('QBCore:Client:OnJobUpdate', function(JobInfo)
     end
 end)
 
-RegisterNUICallback('captureScreenshot', function(hook, cb)
-    local mediatable = {}
-    local media = lib.callback.await('md-bossmenu:server:uploadimage')
-    local linked = ''
-    exports['screenshot-basic']:requestScreenshotUpload('https://api.fivemerr.com/v1/media/images', 'file', {
-        headers = {
-            Authorization = media
-        },
-        encoding = 'jpg'
-    }, function(data)
-        local resp = json.decode(data)
-        local link = (resp and resp.url) or 'invalid_url'
-        table.insert(mediatable, link)
-        linked = resp.url
-    end)
-     cb('ok', linked)
+RegisterNUICallback('captureScreenshot', function(data, cb)
+    SendNUIMessage({
+        action = 'captureScreenshot',
+        image = 'https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcR6jlSUJDfMqns0dYSl-SvApGVfgficB_EIFLlImTsmjDNDKfQb3DFTn6IKeLPU0jIPVlKVgoatWbd_EpI'
+    })
+     cb('ok')
  end)
 
+RegisterNUICallback('getEmployeeOfTheMonth', function(data, cb)
+    TriggerServerEvent('md-bossmenu:server:GetEmployeeOfTheMonth')
+    cb('ok')
+end)
+
+RegisterNUICallback('setEmployeeOfTheMonth', function(data, cb)
+    TriggerServerEvent('md-bossmenu:server:SetEmployeeOfTheMonth', data)
+    cb('ok')
+end)
+
+RegisterNetEvent('md-bossmenu:client:ReceiveEmployeeOfTheMonth')
+AddEventHandler('md-bossmenu:client:ReceiveEmployeeOfTheMonth', function(data)
+    print("Received employee of the month data:", json.encode(data))
+    SendNUIMessage({
+        action = "setEmployeeOfTheMonth",
+        data = data
+    })
+end)
+
+RegisterNetEvent('md-bossmenu:client:EmployeeOfMonthSet')
+AddEventHandler('md-bossmenu:client:EmployeeOfMonthSet', function(success)
+    SendNUIMessage({
+        action = "employeeOfMonthSetResult",
+        success = success
+    })
+end)
 
 RegisterNUICallback('sendChatMessage', function(data, cb)
     local Player = QBCore.Functions.GetPlayerData()

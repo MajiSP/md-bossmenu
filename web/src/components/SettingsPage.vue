@@ -7,13 +7,13 @@
         <h3 class="text-xl mb-4">Theme</h3>
         <div class="flex space-x-4">
           <button
-              @click="sendInteractionToClient('click', { component: 'changeThemeLight', page: 'SettingsPage' }); changeTheme('light-theme')"
+              @click="changeTheme('light-theme')"
               :class="['setting-button px-4 py-2 rounded', currentTheme === 'light-theme' ? 'active' : '']"
               >
               Light
               </button>
               <button
-              @click="sendInteractionToClient('click', { component: 'changeThemeDark', page: 'SettingsPage' }); changeTheme('dark-theme')"
+              @click="changeTheme('dark-theme')"
               :class="['setting-button px-4 py-2 rounded', currentTheme === 'dark-theme' ? 'active' : '']"
               >
               Dark
@@ -39,7 +39,7 @@
     <div class="setting-section">
       <h3 class="text-xl mb-4">Profile Image</h3>
       <div class="flex flex-col space-y-4">
-        <img :src="userState.userImage" alt="User Avatar" class="w-16 h-16 rounded-full object-cover mx-auto">
+        <img :src="currentUserImage" alt="User Avatar" class="w-16 h-16 rounded-full object-cover mx-auto">
         <input v-model="newImageUrl" placeholder="Paste image URL here"
               class="input-field w-full p-2 rounded transition-colors duration-200 text-center">
         <button @click="updateUserImage"
@@ -66,15 +66,11 @@
 <script setup>
 import { ref, inject, onMounted, watch, computed } from 'vue'
 import { userState } from '../userState'
-//import { useSound } from './sounds'
-//const { sendInteractionToClient } = useSound()
 const newImageUrl = ref('')
 
 const props = defineProps({
   activePage: String
 })
-
-const isSettingsActive = computed(() => props.activePage === 'Settings')
 
 const updateUserImage = () => {
 if (newImageUrl.value) {
@@ -121,7 +117,7 @@ emailNotifications: true,
 language: 'en'
 })
 
-
+const currentUserImage = computed(() => userState.userImage)
 
 const contributors = [
 { name: 'Mustache Dom', logo: './img/md.png', github: 'https://github.com/mustachedom', details: 'Backend Developer' },
@@ -132,6 +128,14 @@ const contributors = [
 const changeTheme = (newTheme) => {
 currentTheme.value = newTheme
 }
+
+watch(() => userState.userImage, (newImage) => {
+  if (newImage) {
+    forceRender.value += 1
+  }
+})
+
+const isSettingsActive = computed(() => props.activePage === 'Settings')
 
 watch(isSettingsActive, (newValue) => {
   if (newValue) {
