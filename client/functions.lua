@@ -118,3 +118,15 @@ function OpenStash(type, job, id)
 		Notify('You Cant Open This ', 'error')
 	end
 end
+
+function PlayAnim(anim)
+	TriggerEvent('animations:client:EmoteCommandStart', {anim}) 
+end
+
+function StopAnim()
+	if GetResourceState('scully_emotemenu') == 'started' then
+		exports.scully_emotemenu:cancelEmote()
+	else
+		TriggerEvent('animations:client:EmoteCommandStart', {"c"}) 
+	end
+end

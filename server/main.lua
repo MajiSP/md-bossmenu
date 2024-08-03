@@ -163,7 +163,6 @@ RegisterNetEvent('md-bossmenu:server:GetEmployeeOfTheMonth')
 AddEventHandler('md-bossmenu:server:GetEmployeeOfTheMonth', function()
     local src = source
     MySQL.Async.fetchAll('SELECT * FROM employee_of_the_month ORDER BY id DESC LIMIT 1', {}, function(result)
-        print("Fetched employee of the month data:", json.encode(result))
         if result[1] then
             TriggerClientEvent('md-bossmenu:client:ReceiveEmployeeOfTheMonth', src, result[1])
         else
@@ -250,7 +249,6 @@ RegisterServerEvent('md-bossmenu:server:OpenStashes', function(name)
     
         MySQL.single('SELECT userimage FROM players WHERE citizenid = ?', {citizenid}, function(result)
             local imageUrl = result and result.userimage or defaultImage
-            print("Retrieved image URL for citizenid " .. citizenid .. ": " .. imageUrl)
             TriggerClientEvent('md-bossmenu:client:ReceiveUserImage', src, imageUrl)
         end)
     end)
@@ -269,3 +267,23 @@ RegisterServerEvent('md-bossmenu:server:OpenStashes', function(name)
             )
         end
     end)
+
+lib.callback.register('md-bossmenu:server:Promote', function(source, data)
+     local src = source
+     local Player = QBCore.Functions.GetPlayer(src)
+     local Employee = QBCore.Functions.GetPlayerByCitizenId(data.id) or QBCore.Functions.GetOfflinePlayerByCitizenId(data.id)
+     if GetName(Player) == GetName(Employee) then Notifys('You Cant Promote Yourself', 'error') return false end
+     if not IsBoss(Player) then return end
+     if Employee then 
+        for k, v in pairs (QBCore.Shared.Jobs[GetJob(Player)]['grades']) do
+           if v.name == data.newrank then
+               if Employee then 
+                   Employee.Functions.SetJob(GetJob(Player), k)
+                   Employee.Functions.Save()
+                   Notifys2(src, 'You Changed ' .. GetName(Employee) .. ' Rank To ' .. data.newrank .. "!", 'success')
+                   return true
+               end
+           end
+        end
+    end
+end)

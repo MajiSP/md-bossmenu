@@ -46,6 +46,7 @@ local function OpenUI()
     local Player = QBCore.Functions.GetPlayerData()
     if Player.metadata.isdead or Player.metadata.inlaststand then return end
     local username = Player.charinfo.firstname .. ' ' .. Player.charinfo.lastname
+    PlayAnim('tablet')
     if not isUIOpen then
         Wait(100)
         SendNUIMessage({
@@ -67,6 +68,7 @@ local function OpenUI()
 end
 
 local function CloseUI()
+    StopAnim()
     if isUIOpen then
         TriggerEvent('animations:client:EmoteCommandStart', {'tablet'}) 
         SendNUIMessage({
@@ -131,6 +133,7 @@ RegisterNUICallback('hireEmployee', function(data, cb)
     TriggerServerEvent('bossmenu:server:GetEmployees')
     cb('ok')
 end)
+
 
 RegisterNetEvent('bossmenu:client:HireEmployeeResult')
 AddEventHandler('bossmenu:client:HireEmployeeResult', function(result)
@@ -267,7 +270,6 @@ end)
 
 RegisterNetEvent('md-bossmenu:client:ReceiveEmployeeOfTheMonth')
 AddEventHandler('md-bossmenu:client:ReceiveEmployeeOfTheMonth', function(data)
-    print("Received employee of the month data:", json.encode(data))
     SendNUIMessage({
         action = "setEmployeeOfTheMonth",
         data = data
@@ -319,3 +321,24 @@ AddEventHandler('md-bossmenu:client:ReceiveChatHistory', function(messages)
         messages = messages
     })
 end)
+
+RegisterNUICallback('getChatHistory', function(data, cb)
+    TriggerServerEvent('md-bossmenu:server:GetChatHistory')
+    cb('ok')
+end)
+
+
+-- Listen for server responses regarding the promotion result
+RegisterNetEvent('myResource:promotionResult')
+AddEventHandler('myResource:promotionResult', function(result)
+    SendNUIMessage({
+        action = 'promotionResult',
+        result = result
+    })
+end)
+
+RegisterNUICallback('promoteEmployee', function(data, cb)
+local check = lib.callback.await('md-bossmenu:server:Promote', false, data)
+if not check  then Notify("Changing Rank Failed") return end
+end)
+    
