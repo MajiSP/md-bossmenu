@@ -5,5 +5,6 @@ Run SQL
 
 Fill Out Config
 
-Comment out this event in qb-management in cl_boss.lua
-'qb-bossmenu:client:OpenMenu'
+```
+COMMENT OUT cl_bossmenu and sv_bossmenu from qb-management
+```
