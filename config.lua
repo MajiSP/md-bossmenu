@@ -3,7 +3,7 @@ Config.Notify = 'ox' -- qb/ox/okok
 Config.OldQB = false -- only select true if you use OLD QB INVENTORY OR OLD PS OR LJ INVENTORY
 Config.DefaultCommission = 0.10
 Config.JobChatEntry = 'Welcome To Your Boss Menus Job Chat. Please Remember To Follow All Company Protocal! \n Please Remember That Swearing Is A Sin And Not In The Company Policy!'
-
+Config.UseManagement = false -- if you use qb-management to handle AddMoney And RemoveMoney exports ( only needed if you downloaded qb framework prior to qb-banking release)
 Config.MenuItems = {
     { icon = 'home', bossOnly = false }, -- home page
     { icon = 'users', bossOnly = true }, -- employees page
