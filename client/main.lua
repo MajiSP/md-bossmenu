@@ -53,7 +53,8 @@ local function OpenUI()
             isBoss = Player.job.isboss,
             menuItems = Config.MenuItems,
             username = username,
-            job = Player.job.name
+            job = Player.job.name,
+            joblabel = Player.job.label
         })
         SendNUIMessage({
             action = "setCurrentUser",
