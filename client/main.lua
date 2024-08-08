@@ -3,13 +3,12 @@ local isUIOpen = false
 
 CreateThread(function()
     for k, v in pairs (Config.Locations) do 
-        if v.job == nil then return end
         local options = {
             {
                 label = 'Open Boss Menu',
                 event = 'qb-bossmenu:client:OpenMenu',
                 canInteract = function()
-                    if QBCore.Functions.GetPlayerData().job.name == v.job then return true end
+                    if QBCore.Functions.GetPlayerData().job.name == k then return true end
                 end
             }
         }
@@ -54,7 +53,8 @@ local function OpenUI()
             isBoss = Player.job.isboss,
             menuItems = Config.MenuItems,
             username = username,
-            job = Player.job.name
+            job = Player.job.name,
+            joblabel = Player.job.label
         })
         SendNUIMessage({
             action = "setCurrentUser",

@@ -105,13 +105,13 @@ function AddBillMoney(name, amount, reason)
         exports['Renewed-Banking']:addAccountMoney(name, amount)
     elseif GetResourceState('okokBanking') == 'started' then
         exports['okokBanking']:AddMoney(name, amount)
+    elseif Config.UseManagement then
+        if exports['qb-management']:AddMoney(name, amount , reason) then 
+            return true
+        end 
     else
-         if Config.QBManagementexports then 
-             if exports['qb-management']:AddMoney(name, amount , reason) then 
-                return true
-            end
-        elseif exports['qb-banking']:AddMoney(name, amount , reason) then 
-                return true
+        if exports['qb-banking']:AddMoney(name, amount , reason) then 
+            return true
         end
     end
 end
@@ -125,14 +125,14 @@ function PayoutBonuses(name, amount, reason)
        if exports['okokBanking']:RemoveMoney(name, amount) then
             return true
        end
+    elseif Config.UseManagement then
+        if exports['qb-management']:RemoveMoney(name, amount , reason) then 
+            return true
+        end 
     else
-       if Config.QBManagementexports then 
-            if exports['qb-management']:RemoveMoney(name, amount , reason) then 
-	   return true
-	end
-       elseif exports['qb-banking']:RemoveMoney(name, amount , reason) then 
-	   return true
-       end
+        if exports['qb-banking']:RemoveMoney(name, amount , reason) then 
+            return true
+        end
     end
 end
 
